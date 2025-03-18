@@ -55,12 +55,6 @@ namespace Proyecto_Gestion_Ventas.Controllers
         }
 
 
-
-
-
-
-
-
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
