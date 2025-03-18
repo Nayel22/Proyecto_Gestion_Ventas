@@ -46,5 +46,58 @@ namespace Proyecto_Gestion_Ventas.Models
                 }
             }
         }
+
+        // Método para obtener todos los clientes
+        public List<Cliente> ObtenerTodosClientes()
+        {
+            List<Cliente> listaClientes = new List<Cliente>();
+
+            using (SqlConnection con = new SqlConnection(_conexion))
+            {
+                try
+                {
+                    string query = "Exec sp_ObtenerTodosClientes";
+
+                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    {
+                        con.Open();
+
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                Cliente cliente = new Cliente
+                                {
+                                    IdCliente = Convert.ToInt32(reader["IdCliente"]),
+                                    Nombre = reader["Nombre"].ToString(),
+                                    Direccion = reader["Direccion"].ToString(),
+                                    Telefono = reader["Telefono"].ToString(),
+                                    FechaRegistro = Convert.ToDateTime(reader["FechaRegistro"]),
+                                    AdicionadoPor = reader["AdicionadoPor"].ToString()
+                                };
+
+                                // Verificar si los campos opcionales tienen valor
+                                if (reader["FechaModificacion"] != DBNull.Value)
+                                    cliente.FechaModificacion = Convert.ToDateTime(reader["FechaModificacion"]);
+
+                                if (reader["ModificadoPor"] != DBNull.Value)
+                                    cliente.ModificadoPor = reader["ModificadoPor"].ToString();
+
+                                listaClientes.Add(cliente);
+                            }
+                        }
+                    }
+
+                    return listaClientes;
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Error al obtener los clientes: " + ex.Message);
+                }
+            }
+        }
+
+
+
     }
 }

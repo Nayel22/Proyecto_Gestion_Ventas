@@ -52,6 +52,30 @@ namespace Proyecto_Gestion_Ventas.Controllers
             }
             return View(cliente);
         }
+        public IActionResult ObtenerTodosClientes()
+        {
+            try
+            {
+                // Obtener todos los clientes
+                List<Cliente> clientes = _accesoDatos.ObtenerTodosClientes();
+
+                // Pasar la lista de clientes a la vista
+                return View(clientes);
+            }
+            catch (Exception ex)
+            {
+                // Manejar el error
+                ViewBag.Error = "Error al cargar los clientes: " + ex.Message;
+                return View(new List<Cliente>());
+            }
+        }
+
+
+
+
+
+
+
 
         public IActionResult Privacy()
         {

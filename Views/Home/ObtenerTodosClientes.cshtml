@@ -1,0 +1,47 @@
+﻿@model List<Proyecto_Gestion_Ventas.Models.Cliente>
+
+@{
+    ViewData["Title"] = "Lista de Clientes";
+}
+
+<div class="container">
+    <h1>Lista de Clientes</h1>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger">
+            @ViewBag.Error
+        </div>
+    }
+
+    <a asp-action="CrearCliente" class="btn btn-primary mb-3">Nuevo Cliente</a>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Dirección</th>
+                <th>Teléfono</th>
+                <th>Fecha Registro</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var cliente in Model)
+            {
+                <tr>
+                    <td>@cliente.IdCliente</td>
+                    <td>@cliente.Nombre</td>
+                    <td>@cliente.Direccion</td>
+                    <td>@cliente.Telefono</td>
+                    <td>@cliente.FechaRegistro.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        <a asp-action="EditarCliente" asp-route-id="@cliente.IdCliente" class="btn btn-sm btn-warning">Editar</a>
+                        <a asp-action="DetalleCliente" asp-route-id="@cliente.IdCliente" class="btn btn-sm btn-info">Detalles</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
