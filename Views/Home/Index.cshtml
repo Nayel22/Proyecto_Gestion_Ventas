@@ -1,8 +1,8 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Menú Principal ";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="d-flex flex-column align-items-start" role="group" aria-label="Menu">
+    <a href="@Url.Action("AgregarCliente", "Home")" class="btn btn-primary"> Clientes </a>
+    <a href="@Url.Action("", "Home")" class="btn btn-warning"></a>
 </div>
