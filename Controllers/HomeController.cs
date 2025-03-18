@@ -1,59 +1,62 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Proyecto_Gestion_Ventas.Models;
+using System.Diagnostics;
 
 namespace Proyecto_Gestion_Ventas.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly AccesoDatos _accesoDatos;
 
-
-        private AccesoDatos _acceso;
-
-        public HomeController(AccesoDatos acceso)
+        public HomeController(ILogger<HomeController> logger, AccesoDatos accesoDatos)
         {
-            _acceso = acceso;
+            _logger = logger;
+            _accesoDatos = accesoDatos;
         }
-
-        //Metodos de Cliente
-        //Crear cliente
-
-        [HttpPost]
-        public IActionResult AgregarCliente(Cliente modelo)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View("Index", modelo);
-            }
-            try
-            {
-                _acceso.AgregarCliente(modelo);
-
-                //si al agregar el usuario es exitoso
-                TempData["SuccessMessage"] = "Tu cliente se guardó con éxito.";
-                return RedirectToAction("Index");
-            }
-            catch (Exception ex)
-            {
-                TempData["SuccessMessage"] = "Tu cliente no se guardó." + ex.Message;
-                return View("Index", modelo);
-            }
-        }
-
-
-      
 
         public IActionResult Index()
         {
             return View();
         }
 
-        public IActionResult Privacy()
+        // GET: Home/AgregarCliente
+        public IActionResult AgregarCliente()
         {
             return View();
         }
 
+        // POST: Home/AgregarCliente
+        [HttpPost]
+        public IActionResult AgregarCliente(Cliente cliente)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // Si el usuario no está autenticado, asignar un valor predeterminado
+                    if (string.IsNullOrEmpty(cliente.AdicionadoPor))
+                    {
+                        cliente.AdicionadoPor = "Sistema";
+                    }
+
+                    // Usar la clase AccesoDatos para agregar el cliente
+                    int idCliente = _accesoDatos.AgregarCliente(cliente);
+                    TempData["SuccessMessage"] = "Cliente registrado con éxito. ID: " + idCliente;
+                    return RedirectToAction("AgregarCliente");
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", ex.Message);
+                }
+            }
+            return View(cliente);
+        }
+
+        public IActionResult Privacy()
+        {
+            return View();
+        }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
