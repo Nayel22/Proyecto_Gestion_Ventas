@@ -98,6 +98,44 @@ namespace Proyecto_Gestion_Ventas.Models
         }
 
 
+        //ActualizarCliente
+
+        // Método para actualizar un cliente
+        public bool ActualizarCliente(Cliente cliente)
+        {
+            using (SqlConnection con = new SqlConnection(_conexion))
+            {
+                try
+                {
+                    string query = "Exec sp_ActualizarCliente @IdCliente, @nombre, @direccion, @telefono, @FechaModificacion, @ModificadoPor";
+
+                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    {
+                        // Asignar los valores de los parámetros
+                        cmd.Parameters.AddWithValue("@IdCliente", cliente.IdCliente);
+                        cmd.Parameters.AddWithValue("@nombre", cliente.Nombre);
+                        cmd.Parameters.AddWithValue("@direccion", cliente.Direccion);
+                        cmd.Parameters.AddWithValue("@telefono", cliente.Telefono);
+                        cmd.Parameters.AddWithValue("@FechaModificacion", DateTime.Now);
+                        cmd.Parameters.AddWithValue("@ModificadoPor", cliente.ModificadoPor);
+
+                        // Abrir la conexión
+                        con.Open();
+
+                        // Ejecutar el procedimiento almacenado
+                        cmd.ExecuteNonQuery();
+
+                        return true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Error al actualizar el cliente: " + ex.Message);
+                }
+            }
+        }
+
+
 
     }
 }

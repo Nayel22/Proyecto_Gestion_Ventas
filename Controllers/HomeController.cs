@@ -52,6 +52,10 @@ namespace Proyecto_Gestion_Ventas.Controllers
             }
             return View(cliente);
         }
+     
+
+        //Este es el metodo de obtener los clientes
+
         public IActionResult ObtenerTodosClientes()
         {
             try
@@ -70,7 +74,61 @@ namespace Proyecto_Gestion_Ventas.Controllers
             }
         }
 
+        //Este es el metodo de Actualizar los clientes
 
+        // GET: Home/EditarCliente/{id}
+        public IActionResult EditarCliente(int id)
+        {
+            try
+            {
+                // Obtener el cliente por ID
+                var clientes = _accesoDatos.ObtenerTodosClientes();
+                var cliente = clientes.FirstOrDefault(c => c.IdCliente == id);
+
+                if (cliente == null)
+                {
+                    return NotFound();
+                }
+
+                return View(cliente);
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Error al obtener el cliente: " + ex.Message;
+                return View("Error");
+            }
+        }
+
+        // POST: Home/EditarCliente
+        [HttpPost]
+        public IActionResult EditarCliente(Cliente cliente)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    // Configurar propiedades de auditoría
+                    cliente.FechaModificacion = DateTime.Now;
+                    cliente.ModificadoPor = User.Identity?.Name ?? "Sistema";
+
+                    // Actualizar el cliente
+                    bool resultado = _accesoDatos.ActualizarCliente(cliente);
+
+                    if (resultado)
+                    {
+                        TempData["SuccessMessage"] = "Cliente actualizado correctamente.";
+                        return RedirectToAction("ObtenerTodosClientes");
+                    }
+                }
+
+                return View(cliente);
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Error al actualizar el cliente: " + ex.Message;
+                return View(cliente);
+            }
+        }
 
 
 
