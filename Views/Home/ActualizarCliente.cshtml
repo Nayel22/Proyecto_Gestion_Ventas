@@ -1,36 +1,47 @@
-﻿@model Proyecto_Gestion_Ventas.Models.Cliente
+﻿@model List<Proyecto_Gestion_Ventas.Models.Cliente>
 
 @{
-    ViewData["Title"] = "Editar Cliente";
+    ViewData["Title"] = "Lista de Clientes";
 }
 
-<h2>Editar Cliente</h2>
+<div class="container">
+    <h1>Lista de Clientes</h1>
 
-@if (ViewBag.Error != null)
-{
-    <div class="alert alert-danger">
-        @ViewBag.Error
-    </div>
-}
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger">
+            @ViewBag.Error
+        </div>
+    }
 
-<form asp-action="EditarCliente" method="post">
-    <input type="hidden" asp-for="IdCliente" />
-    <input type="hidden" asp-for="FechaRegistro" />
-    <input type="hidden" asp-for="AdicionadoPor" />
+    <a asp-action="CrearCliente" class="btn btn-primary mb-3">Nuevo Cliente</a>
 
-    <div class="form-group mb-3">
-        <label asp-for="Nombre">Nombre:</label>
-        <input asp-for="Nombre" class="form-control" required />
-    </div>
-    <div class="form-group mb-3">
-        <label asp-for="Direccion">Dirección:</label>
-        <input asp-for="Direccion" class="form-control" required />
-    </div>
-    <div class="form-group mb-3">
-        <label asp-for="Telefono">Teléfono:</label>
-        <input asp-for="Telefono" class="form-control" required />
-    </div>
-
-    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-    <a asp-action="ObtenerTodosClientes" class="btn btn-secondary">Cancelar</a>
-</form>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Dirección</th>
+                <th>Teléfono</th>
+                <th>Fecha Registro</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var cliente in Model)
+            {
+                <tr>
+                    <td>@cliente.IdCliente</td>
+                    <td>@cliente.Nombre</td>
+                    <td>@cliente.Direccion</td>
+                    <td>@cliente.Telefono</td>
+                    <td>@cliente.FechaRegistro.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        <a asp-action="EditarCliente" asp-route-id="@cliente.IdCliente" class="btn btn-sm btn-warning">Editar</a>
+                        <a asp-action="DetalleCliente" asp-route-id="@cliente.IdCliente" class="btn btn-sm btn-info">Detalles</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

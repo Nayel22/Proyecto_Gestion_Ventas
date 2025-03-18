@@ -101,7 +101,7 @@ namespace Proyecto_Gestion_Ventas.Controllers
 
         // POST: Home/EditarCliente
         [HttpPost]
-        public IActionResult EditarCliente(Cliente cliente)
+        public IActionResult ActualizarCliente(Cliente cliente)
         {
             try
             {
