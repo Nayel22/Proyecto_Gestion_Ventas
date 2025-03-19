@@ -75,15 +75,13 @@ namespace Proyecto_Gestion_Ventas.Controllers
         }
 
         //Este es el metodo de Actualizar los clientes
-
-        // GET: Home/EditarCliente/{id}
-        public IActionResult EditarCliente(int id)
+        // GET: Home/ActualizarCliente/5
+        public IActionResult ActualizarCliente(int id)
         {
             try
             {
-                // Obtener el cliente por ID
-                var clientes = _accesoDatos.ObtenerTodosClientes();
-                var cliente = clientes.FirstOrDefault(c => c.IdCliente == id);
+                // Obtener el cliente por ID usando el procedimiento almacenado
+                Cliente cliente = _accesoDatos.ObtenerClientePorId(id);
 
                 if (cliente == null)
                 {
@@ -94,34 +92,33 @@ namespace Proyecto_Gestion_Ventas.Controllers
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Error al obtener el cliente: " + ex.Message;
-                return View("Error");
+                ViewBag.Error = "Error al cargar el cliente: " + ex.Message;
+                return RedirectToAction("ObtenerTodosClientes");
             }
         }
 
-        // POST: Home/EditarCliente
+        // POST: Home/ActualizarCliente
         [HttpPost]
         public IActionResult ActualizarCliente(Cliente cliente)
         {
             try
             {
-                if (ModelState.IsValid)
+                // Establecer quién modifica el registro
+                cliente.ModificadoPor = "Usuario Actual"; // Idealmente, esto vendría de tu sistema de autenticación
+
+                // Actualizar el cliente
+                bool resultado = _accesoDatos.ActualizarCliente(cliente);
+
+                if (resultado)
                 {
-                    // Configurar propiedades de auditoría
-                    cliente.FechaModificacion = DateTime.Now;
-                    cliente.ModificadoPor = User.Identity?.Name ?? "Sistema";
-
-                    // Actualizar el cliente
-                    bool resultado = _accesoDatos.ActualizarCliente(cliente);
-
-                    if (resultado)
-                    {
-                        TempData["SuccessMessage"] = "Cliente actualizado correctamente.";
-                        return RedirectToAction("ObtenerTodosClientes");
-                    }
+                    // Redirigir a la lista de clientes después de actualizar
+                    return RedirectToAction("ObtenerTodosClientes");
                 }
-
-                return View(cliente);
+                else
+                {
+                    ViewBag.Error = "No se pudo actualizar el cliente";
+                    return View(cliente);
+                }
             }
             catch (Exception ex)
             {
@@ -129,7 +126,6 @@ namespace Proyecto_Gestion_Ventas.Controllers
                 return View(cliente);
             }
         }
-
 
 
 

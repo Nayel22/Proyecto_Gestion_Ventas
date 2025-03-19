@@ -96,6 +96,58 @@ namespace Proyecto_Gestion_Ventas.Models
                 }
             }
         }
+        //Metodo para ObternerTodosClientePorId//////////////
+
+        // Método para obtener un cliente por ID
+        public Cliente ObtenerClientePorId(int id)
+        {
+            using (SqlConnection con = new SqlConnection(_conexion))
+            {
+                try
+                {
+                    string query = "Exec sp_ObtenerClientePorId @IdCliente";
+
+                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    {
+                        cmd.Parameters.AddWithValue("@IdCliente", id);
+                        con.Open();
+
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                Cliente cliente = new Cliente
+                                {
+                                    IdCliente = Convert.ToInt32(reader["IdCliente"]),
+                                    Nombre = reader["Nombre"].ToString(),
+                                    Direccion = reader["Direccion"].ToString(),
+                                    Telefono = reader["Telefono"].ToString(),
+                                    FechaRegistro = Convert.ToDateTime(reader["FechaRegistro"]),
+                                    AdicionadoPor = reader["AdicionadoPor"].ToString()
+                                };
+
+                                // Verificar si los campos opcionales tienen valor
+                                if (reader["FechaModificacion"] != DBNull.Value)
+                                    cliente.FechaModificacion = Convert.ToDateTime(reader["FechaModificacion"]);
+
+                                if (reader["ModificadoPor"] != DBNull.Value)
+                                    cliente.ModificadoPor = reader["ModificadoPor"].ToString();
+
+                                return cliente;
+                            }
+                        }
+
+                        return null; // Si no se encuentra el cliente
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Error al obtener el cliente: " + ex.Message);
+                }
+            }
+        }
+
+
 
 
         //ActualizarCliente

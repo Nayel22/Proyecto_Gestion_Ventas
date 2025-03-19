@@ -37,8 +37,7 @@
                     <td>@cliente.Telefono</td>
                     <td>@cliente.FechaRegistro.ToString("dd/MM/yyyy")</td>
                     <td>
-                        <a asp-action="EditarCliente" asp-route-id="@cliente.IdCliente" class="btn btn-sm btn-warning">Editar</a>
-                        <a asp-action="DetalleCliente" asp-route-id="@cliente.IdCliente" class="btn btn-sm btn-info">Detalles</a>
+                        <a asp-action="ActualizarCliente" asp-route-id="@cliente.IdCliente" class="btn btn-sm btn-warning">Editar</a>
                     </td>
                 </tr>
             }
