@@ -1,11 +1,11 @@
-﻿@model List<Proyecto_Gestion_Ventas.Models.Cliente>
+﻿@model Proyecto_Gestion_Ventas.Models.Cliente
 
 @{
-    ViewData["Title"] = "Lista de Clientes";
+    ViewData["Title"] = "Actualizar Cliente";
 }
 
 <div class="container">
-    <h1>Lista de Clientes</h1>
+    <h1>Actualizar Cliente</h1>
 
     @if (ViewBag.Error != null)
     {
@@ -14,34 +14,29 @@
         </div>
     }
 
-    <a asp-action="CrearCliente" class="btn btn-primary mb-3">Nuevo Cliente</a>
+    <form asp-action="GuardarCliente" method="post">
+        <input type="hidden" asp-for="IdCliente" />
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Dirección</th>
-                <th>Teléfono</th>
-                <th>Fecha Registro</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var cliente in Model)
-            {
-                <tr>
-                    <td>@cliente.IdCliente</td>
-                    <td>@cliente.Nombre</td>
-                    <td>@cliente.Direccion</td>
-                    <td>@cliente.Telefono</td>
-                    <td>@cliente.FechaRegistro.ToString("dd/MM/yyyy")</td>
-                    <td>
-                        <a asp-action="EditarCliente" asp-route-id="@cliente.IdCliente" class="btn btn-sm btn-warning">Editar</a>
-                        <a asp-action="DetalleCliente" asp-route-id="@cliente.IdCliente" class="btn btn-sm btn-info">Detalles</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+        <div class="form-group mb-3">
+            <label asp-for="Nombre">Nombre</label>
+            <input asp-for="Nombre" class="form-control" required />
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Direccion">Dirección</label>
+            <input asp-for="Direccion" class="form-control" required />
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Telefono">Teléfono</label>
+            <input asp-for="Telefono" class="form-control" required />
+        </div>
+
+        <input type="hidden" asp-for="ModificadoPor" value="Usuario" />
+
+        <div class="mt-3">
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            <a asp-action="ObtenerTodosClientes" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
 </div>

@@ -74,56 +74,43 @@ namespace Proyecto_Gestion_Ventas.Controllers
             }
         }
 
-        //Este es el metodo de Actualizar los clientes
-        // GET: Home/ActualizarCliente/5
+        // Método para mostrar el formulario de actualización
         public IActionResult ActualizarCliente(int id)
         {
             try
             {
-                // Obtener el cliente por ID usando el procedimiento almacenado
-                Cliente cliente = _accesoDatos.ObtenerClientePorId(id);
-
+                var cliente = _accesoDatos.ObtenerClientePorId(id);
                 if (cliente == null)
                 {
-                    return NotFound();
+                    ViewBag.Error = "Cliente no encontrado";
+                    return RedirectToAction("ObtenerTodosClientes");
                 }
-
                 return View(cliente);
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Error al cargar el cliente: " + ex.Message;
+                ViewBag.Error = ex.Message;
                 return RedirectToAction("ObtenerTodosClientes");
             }
         }
 
-        // POST: Home/ActualizarCliente
+        // Método para procesar la actualización
         [HttpPost]
-        public IActionResult ActualizarCliente(Cliente cliente)
+        public IActionResult GuardarCliente(Cliente cliente)
         {
             try
             {
-                // Establecer quién modifica el registro
-                cliente.ModificadoPor = "Usuario Actual"; // Idealmente, esto vendría de tu sistema de autenticación
-
-                // Actualizar el cliente
-                bool resultado = _accesoDatos.ActualizarCliente(cliente);
-
-                if (resultado)
+                if (ModelState.IsValid)
                 {
-                    // Redirigir a la lista de clientes después de actualizar
+                    _accesoDatos.ActualizarCliente(cliente);
                     return RedirectToAction("ObtenerTodosClientes");
                 }
-                else
-                {
-                    ViewBag.Error = "No se pudo actualizar el cliente";
-                    return View(cliente);
-                }
+                return View("ActualizarCliente", cliente);
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Error al actualizar el cliente: " + ex.Message;
-                return View(cliente);
+                ViewBag.Error = ex.Message;
+                return View("ActualizarCliente", cliente);
             }
         }
 
