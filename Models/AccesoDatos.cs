@@ -222,6 +222,12 @@ namespace Proyecto_Gestion_Ventas.Models
         }
 
 
+      ////////////////Vamos ha empezar con los procedimientos almacenados de PRODUCTO//////////////////////////
+      
+
+
+
+
 
     }
 }
