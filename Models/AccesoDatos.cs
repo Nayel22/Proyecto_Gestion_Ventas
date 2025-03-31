@@ -222,9 +222,40 @@ namespace Proyecto_Gestion_Ventas.Models
         }
 
 
-      ////////////////Vamos ha empezar con los procedimientos almacenados de PRODUCTO//////////////////////////
-      
+        ////////////////Vamos ha empezar con los procedimientos almacenados de PRODUCTO//////////////////////////
 
+        // Método para agregar un producto
+        public int AgregarProducto(Producto nuevoProducto)
+        {
+            using (SqlConnection con = new SqlConnection(_conexion))
+            {
+                try
+                {
+                    string query = "Exec sp_InsertarProducto @nombre, @precio, @stock";
+
+                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    {
+                        // Asignar los valores de los parámetros
+                        cmd.Parameters.AddWithValue("@nombre", nuevoProducto.Nombre);
+                        cmd.Parameters.AddWithValue("@precio", nuevoProducto.Precio);
+                        cmd.Parameters.AddWithValue("@stock", nuevoProducto.Stock);
+
+                        // Abrir la conexión
+                        con.Open();
+
+                        // Ejecutar el procedimiento almacenado y obtener el ID del producto creado
+                        int idProducto = Convert.ToInt32(cmd.ExecuteScalar());
+
+                        // Retornar el ID del producto
+                        return idProducto;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Error al registrar el producto: " + ex.Message);
+                }
+            }
+        }
 
 
 

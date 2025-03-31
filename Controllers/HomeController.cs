@@ -140,7 +140,59 @@ namespace Proyecto_Gestion_Ventas.Controllers
             return RedirectToAction("ObtenerTodosClientes");
         }
 
-        
+        ////////////////Vamos ha empezar con los procedimientos almacenados de PRODUCTO//////////////////////////
+
+
+        // GET: Home/AgregarProducto
+        public IActionResult AgregarProducto()
+        {
+            return View();
+        }
+
+        // POST: Home/AgregarProducto
+        [HttpPost]
+        public IActionResult AgregarProducto(Producto producto)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    // Asignar la fecha de registro
+                    producto.FechaRegistro = DateTime.Now;
+
+                    // Llamar al método de la capa de acceso a datos
+                    int idProducto = _accesoDatos.AgregarProducto(producto);
+
+                    // Mostrar mensaje de éxito
+                    TempData["SuccessMessage"] = "Producto agregado correctamente con ID: " + idProducto;
+
+                    // Redirect a la misma página para limpiar el formulario
+                    return RedirectToAction(nameof(AgregarProducto));
+                }
+                return View(producto);
+            }
+            catch (Exception ex)
+            {
+                // Mostrar mensaje de error
+                ViewBag.Error = ex.Message;
+                return View(producto);
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         public IActionResult Privacy()
         {
