@@ -114,9 +114,33 @@ namespace Proyecto_Gestion_Ventas.Controllers
             }
         }
 
+        // Acción para eliminar un cliente
+        public IActionResult EliminarCliente(int id)
+        {
+            try
+            {
+                // Llamar al método EliminarCliente de AccesoDatos
+                bool resultado = _accesoDatos.EliminarCliente(id);
 
+                if (resultado)
+                {
+                    TempData["Mensaje"] = "Cliente eliminado correctamente";
+                }
+                else
+                {
+                    TempData["Error"] = "No se pudo eliminar el cliente";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Error al eliminar el cliente: " + ex.Message;
+            }
 
+            // Redirigir a la lista de clientes
+            return RedirectToAction("ObtenerTodosClientes");
+        }
 
+        
 
         public IActionResult Privacy()
         {

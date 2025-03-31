@@ -187,6 +187,40 @@ namespace Proyecto_Gestion_Ventas.Models
             }
         }
 
+        //Eliminar Cliente
+
+        //Metodos para poder elimanr cliente
+
+        // Método para eliminar un cliente
+        public bool EliminarCliente(int idCliente)
+        {
+            using (SqlConnection con = new SqlConnection(_conexion))
+            {
+                try
+                {
+                    string query = "Exec sp_EliminarCliente @IdCliente";
+
+                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    {
+                        // Asignar el parámetro
+                        cmd.Parameters.AddWithValue("@IdCliente", idCliente);
+
+                        // Abrir la conexión
+                        con.Open();
+
+                        // Ejecutar el procedimiento almacenado
+                        cmd.ExecuteNonQuery();
+
+                        return true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Error al eliminar el cliente: " + ex.Message);
+                }
+            }
+        }
+
 
 
     }

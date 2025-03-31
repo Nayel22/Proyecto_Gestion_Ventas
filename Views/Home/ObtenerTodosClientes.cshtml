@@ -13,6 +13,20 @@
             @ViewBag.Error
         </div>
     }
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Mensaje"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
 
     <a asp-action="AgregarCliente" class="btn btn-primary mb-3">Nuevo Cliente</a>
 
@@ -38,6 +52,8 @@
                     <td>@cliente.FechaRegistro.ToString("dd/MM/yyyy")</td>
                     <td>
                         <a asp-action="ActualizarCliente" asp-route-id="@cliente.IdCliente" class="btn btn-sm btn-warning">Editar</a>
+                        <a asp-action="EliminarCliente" asp-route-id="@cliente.IdCliente" class="btn btn-sm btn-danger"
+                           onclick="return confirm('¿Está seguro que desea eliminar este cliente?')">Eliminar</a>
                     </td>
                 </tr>
             }
