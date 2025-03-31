@@ -3,14 +3,11 @@
 }
 
 <div class="d-flex flex-column align-items-start" role="group" aria-label="Menu">
-    <a href="@Url.Action("AgregarCliente", "Home")" class="btn btn-primary"> Clientes </a>
-    <a href="@Url.Action("ObtenerTodosClientes", "Home")" class="btn btn-primary"> Lista de todos los clientes </a>
-    <a href="@Url.Action("ActualizarCliente", "Home")" class="btn btn-primary"> Actualizar los clientes </a>
+    <h3>Clientes</h3>
+    <a href="@Url.Action("AgregarCliente", "Home")" class="btn btn-primary mb-2">Agregar Cliente</a>
+    <a href="@Url.Action("ObtenerTodosClientes", "Home")" class="btn btn-primary mb-2">Lista de Clientes</a>
 
     <h3 class="mt-3">Productos</h3>
     <a href="@Url.Action("AgregarProducto", "Home")" class="btn btn-success mb-2">Agregar Producto</a>
-
-    
-
-    <a href="@Url.Action("", "Home")" class="btn btn-warning"></a>
+    <a href="@Url.Action("ObtenerTodosProductos", "Home")" class="btn btn-success mb-2">Lista de Productos</a>
 </div>

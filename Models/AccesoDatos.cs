@@ -257,6 +257,47 @@ namespace Proyecto_Gestion_Ventas.Models
             }
         }
 
+        // Método para obtener todos los productos
+        public List<Producto> ObtenerTodosProductos()
+        {
+            List<Producto> listaProductos = new List<Producto>();
+
+            using (SqlConnection con = new SqlConnection(_conexion))
+            {
+                try
+                {
+                    string query = "Exec sp_ObtenerProductos";
+
+                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    {
+                        con.Open();
+
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                Producto producto = new Producto
+                                {
+                                    IdProducto = Convert.ToInt32(reader["id_producto"]),
+                                    Nombre = reader["nombre"].ToString(),
+                                    Precio = Convert.ToDouble(reader["precio"]),
+                                    Stock = Convert.ToInt32(reader["stock"]),
+                                    FechaRegistro = Convert.ToDateTime(reader["fecha_registro"])
+                                };
+
+                                listaProductos.Add(producto);
+                            }
+                        }
+                    }
+
+                    return listaProductos;
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Error al obtener los productos: " + ex.Message);
+                }
+            }
+        }
 
 
 

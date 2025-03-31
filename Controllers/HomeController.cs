@@ -179,7 +179,20 @@ namespace Proyecto_Gestion_Ventas.Controllers
             }
         }
 
-
+        // GET: Home/ObtenerTodosProductos
+        public IActionResult ObtenerTodosProductos()
+        {
+            try
+            {
+                List<Producto> productos = _accesoDatos.ObtenerTodosProductos();
+                return View(productos);
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = ex.Message;
+                return View(new List<Producto>());
+            }
+        }
 
 
 
