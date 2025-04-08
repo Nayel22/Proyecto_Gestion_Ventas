@@ -194,6 +194,61 @@ namespace Proyecto_Gestion_Ventas.Controllers
             }
         }
 
+        // GET: Home/ActualizarProducto/5
+        public IActionResult ActualizarProducto(int id)
+        {
+            try
+            {
+                // Obtener el producto por ID
+                Producto producto = _accesoDatos.ObtenerProductoPorId(id);
+
+                if (producto == null)
+                {
+                    TempData["Error"] = "Producto no encontrado.";
+                    return RedirectToAction("ObtenerTodosProductos");
+                }
+
+                return View(producto);
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = ex.Message;
+                return View("Error");
+            }
+        }
+
+        // POST: Home/GuardarProducto
+        [HttpPost]
+        public IActionResult GuardarProducto(Producto producto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return View("ActualizarProducto", producto);
+                }
+
+                int resultado = _accesoDatos.ActualizarProducto(producto);
+
+                if (resultado == 1)
+                {
+                    TempData["Mensaje"] = "Producto actualizado correctamente.";
+                    return RedirectToAction("ObtenerTodosProductos");
+                }
+                else
+                {
+                    ViewBag.Error = "No se pudo actualizar el producto. Verifique que exista.";
+                    return View("ActualizarProducto", producto);
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = ex.Message;
+                return View("ActualizarProducto", producto);
+            }
+        }
+
+
 
 
 

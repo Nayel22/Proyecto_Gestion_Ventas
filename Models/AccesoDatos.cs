@@ -1,4 +1,5 @@
-﻿using System.Data.SqlClient;
+﻿using System.Data;
+using System.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 
 namespace Proyecto_Gestion_Ventas.Models
@@ -298,6 +299,92 @@ namespace Proyecto_Gestion_Ventas.Models
                 }
             }
         }
+
+        // Método para obtener un producto por ID
+        public Producto ObtenerProductoPorId(int id)
+        {
+            using (SqlConnection con = new SqlConnection(_conexion))
+            {
+                try
+                {
+                    string query = "Exec sp_ObtenerProductoPorId @id_producto";
+
+                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    {
+                        cmd.Parameters.AddWithValue("@id_producto", id);
+                        con.Open();
+
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                Producto producto = new Producto
+                                {
+                                    IdProducto = Convert.ToInt32(reader["id_producto"]),
+                                    Nombre = reader["nombre"].ToString(),
+                                    Precio = Convert.ToDouble(reader["precio"]),
+                                    Stock = Convert.ToInt32(reader["stock"]),
+                                    FechaRegistro = Convert.ToDateTime(reader["fecha_registro"])
+                                };
+
+                                return producto;
+                            }
+                        }
+
+                        return null; // Si no se encuentra el producto
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Error al obtener el producto: " + ex.Message);
+                }
+            }
+        }
+
+        // Método para actualizar un producto
+        // Método para actualizar un producto - versión corregida
+        public int ActualizarProducto(Producto producto)
+        {
+            using (SqlConnection con = new SqlConnection(_conexion))
+            {
+                try
+                {
+                    string query = "Exec sp_ActualizarProducto @id_producto, @nombre, @precio, @stock";
+
+                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    {
+                        // Asignar los valores de los parámetros
+                        cmd.Parameters.AddWithValue("@id_producto", producto.IdProducto);
+                        cmd.Parameters.AddWithValue("@nombre", producto.Nombre);
+                        cmd.Parameters.AddWithValue("@precio", producto.Precio);
+                        cmd.Parameters.AddWithValue("@stock", producto.Stock);
+
+                        // Configurar el comando para devolver el valor de retorno
+                        SqlParameter returnValue = new SqlParameter("@ReturnValue", SqlDbType.Int);
+                        returnValue.Direction = ParameterDirection.ReturnValue;
+                        cmd.Parameters.Add(returnValue);
+
+                        // Abrir la conexión
+                        con.Open();
+
+                        // Ejecutar el procedimiento almacenado
+                        cmd.ExecuteNonQuery();
+
+                        // Obtener el valor de retorno
+                        int resultado = (int)returnValue.Value;
+
+                        return resultado;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Error al actualizar el producto: " + ex.Message);
+                }
+            }
+        }
+
+
+
 
 
 
