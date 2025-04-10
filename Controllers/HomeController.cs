@@ -254,7 +254,32 @@ namespace Proyecto_Gestion_Ventas.Controllers
 
         }
 
+        // Acción para eliminar un producto
+        [HttpPost]
+        public IActionResult EliminarProducto(int id)
+        {
+            try
+            {
+                // Llamar al método EliminarProducto de AccesoDatos
+                int resultado = _accesoDatos.EliminarProducto(id);
 
+                if (resultado == 1)
+                {
+                    TempData["Mensaje"] = "Producto eliminado correctamente";
+                }
+                else
+                {
+                    TempData["Error"] = "No se encontró el producto a eliminar";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Error al eliminar el producto: " + ex.Message;
+            }
+
+            // Redirigir a la lista de productos
+            return RedirectToAction("ObtenerTodosProductos");
+        }
 
 
 

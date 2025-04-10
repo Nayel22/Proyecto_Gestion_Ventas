@@ -12,9 +12,10 @@
         <div class="alert alert-danger">
             @ViewBag.Error
         </div>
+    }
+
     @if (TempData["Mensaje"] != null)
     {
-    }
         <div class="alert alert-success">
             @TempData["Mensaje"]
         </div>
@@ -50,9 +51,16 @@
                     <td>@producto.Stock</td>
                     <td>@producto.FechaRegistro.ToString("dd/MM/yyyy")</td>
                     <td>
-                        <a asp-action="ActualizarProducto" asp-route-id="@producto.IdProducto" class="btn btn-sm btn-warning">Editar</a>
-                        <a asp-action="EliminarProducto" asp-route-id="@producto.IdProducto" class="btn btn-sm btn-danger"
-                           onclick="return confirm('¿Está seguro que desea eliminar este producto?')">Eliminar</a>
+                        <a asp-action="ActualizarProducto" asp-route-id="@producto.IdProducto"
+                           class="btn btn-sm btn-warning">Editar</a>
+
+                        <form asp-action="EliminarProducto" method="post" style="display:inline;">
+                            <input type="hidden" name="id" value="@producto.IdProducto" />
+                            <button type="submit" class="btn btn-sm btn-danger"
+                                    onclick="return confirm('¿Está seguro que desea eliminar este producto?');">
+                                Eliminar
+                            </button>
+                        </form>
                     </td>
                 </tr>
             }

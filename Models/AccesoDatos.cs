@@ -148,9 +148,6 @@ namespace Proyecto_Gestion_Ventas.Models
             }
         }
 
-
-
-
         //ActualizarCliente
 
         // Método para actualizar un cliente
@@ -378,6 +375,43 @@ namespace Proyecto_Gestion_Ventas.Models
                 }
             }
         }
+
+        // Método para eliminar un producto
+        public int EliminarProducto(int idProducto)
+        {
+            using (SqlConnection con = new SqlConnection(_conexion))
+            {
+                try
+                {
+                    // Crear el comando para el procedimiento almacenado
+                    using (SqlCommand cmd = new SqlCommand("sp_EliminarProducto", con))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        // Parámetro de entrada
+                        cmd.Parameters.AddWithValue("@id_producto", idProducto);
+
+                        // Parámetro de retorno
+                        SqlParameter returnParameter = cmd.Parameters.Add("@ReturnVal", SqlDbType.Int);
+                        returnParameter.Direction = ParameterDirection.ReturnValue;
+
+                        // Abrir conexión y ejecutar
+                        con.Open();
+                        cmd.ExecuteNonQuery();
+
+                        // Obtener el valor de retorno
+                        int resultado = (int)returnParameter.Value;
+                        return resultado;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Error al eliminar el producto: " + ex.Message);
+                }
+            }
+        }
+
+
 
 
 
