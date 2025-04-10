@@ -342,37 +342,33 @@ namespace Proyecto_Gestion_Ventas.Models
         }
 
         // Método para actualizar un producto
-        // Método para actualizar un producto - versión corregida
         public int ActualizarProducto(Producto producto)
         {
             using (SqlConnection con = new SqlConnection(_conexion))
             {
                 try
                 {
-                    string query = "Exec sp_ActualizarProducto @id_producto, @nombre, @precio, @stock";
-
-                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    // Crear el comando
+                    using (SqlCommand cmd = new SqlCommand("sp_ActualizarProducto", con))
                     {
-                        // Asignar los valores de los parámetros
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        // Parámetros
                         cmd.Parameters.AddWithValue("@id_producto", producto.IdProducto);
                         cmd.Parameters.AddWithValue("@nombre", producto.Nombre);
                         cmd.Parameters.AddWithValue("@precio", producto.Precio);
                         cmd.Parameters.AddWithValue("@stock", producto.Stock);
 
-                        // Configurar el comando para devolver el valor de retorno
-                        SqlParameter returnValue = new SqlParameter("@ReturnValue", SqlDbType.Int);
-                        returnValue.Direction = ParameterDirection.ReturnValue;
-                        cmd.Parameters.Add(returnValue);
+                        // Parámetro de retorno
+                        SqlParameter returnParameter = cmd.Parameters.Add("@ReturnVal", SqlDbType.Int);
+                        returnParameter.Direction = ParameterDirection.ReturnValue;
 
-                        // Abrir la conexión
+                        // Abrir conexión y ejecutar
                         con.Open();
-
-                        // Ejecutar el procedimiento almacenado
                         cmd.ExecuteNonQuery();
 
                         // Obtener el valor de retorno
-                        int resultado = (int)returnValue.Value;
-
+                        int resultado = (int)returnParameter.Value;
                         return resultado;
                     }
                 }
@@ -382,8 +378,6 @@ namespace Proyecto_Gestion_Ventas.Models
                 }
             }
         }
-
-
 
 
 
