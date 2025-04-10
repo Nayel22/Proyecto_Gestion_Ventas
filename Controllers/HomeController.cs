@@ -230,6 +230,11 @@ namespace Proyecto_Gestion_Ventas.Controllers
 
                 int resultado = _accesoDatos.ActualizarProducto(producto);
 
+                // ? Aquí se imprime en consola
+
+                Console.WriteLine("Resultado SP: " + resultado);
+
+
                 if (resultado == 1)
                 {
                     TempData["Mensaje"] = "Producto actualizado correctamente.";
@@ -246,7 +251,9 @@ namespace Proyecto_Gestion_Ventas.Controllers
                 ViewBag.Error = ex.Message;
                 return View("ActualizarProducto", producto);
             }
+
         }
+
 
 
 
