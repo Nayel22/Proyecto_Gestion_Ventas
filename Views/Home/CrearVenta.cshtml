@@ -1,0 +1,241 @@
+﻿@model Proyecto_Gestion_Ventas.Models.Venta
+
+@{
+    ViewData["Title"] = "Crear Venta";
+}
+
+<div class="container">
+    <h1>Crear Nueva Venta</h1>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger">
+            @ViewBag.Error
+        </div>
+    }
+
+    <form asp-action="CrearVenta" method="post" id="ventaForm">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5>Información de la Venta</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group mb-3">
+                            <label for="IdCliente">Cliente:</label>
+                            <select asp-for="IdCliente" class="form-control" required>
+                                <option value="">-- Seleccione un Cliente --</option>
+                                @foreach (var cliente in ViewBag.Clientes)
+                                {
+                                    <option value="@cliente.IdCliente">@cliente.Nombre</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Total">Total:</label>
+                            <input asp-for="Total" class="form-control" readonly />
+                        </div>
+
+                        <input type="hidden" asp-for="AdicionadoPor" value="@(User.Identity?.Name ?? "Sistema")" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Agregar Productos</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group mb-3">
+                            <label for="productoSelect">Producto:</label>
+                            <select id="productoSelect" class="form-control">
+                                <option value="">-- Seleccione un Producto --</option>
+                                @foreach (var producto in ViewBag.Productos)
+                                {
+                                    <option value="@producto.IdProducto"
+                                            data-precio="@producto.Precio"
+                                            data-stock="@producto.Stock"
+                                            data-nombre="@producto.Nombre">
+                                        @producto.Nombre ($@producto.Precio)
+                                    </option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="cantidad">Cantidad:</label>
+                            <input type="number" id="cantidad" min="1" value="1" class="form-control" />
+                            <small id="stockDisponible" class="form-text text-muted"></small>
+                        </div>
+
+                        <button type="button" id="btnAgregarProducto" class="btn btn-secondary">Agregar Producto</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>Productos Seleccionados</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped" id="tablaProductos">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Precio</th>
+                            <th>Cantidad</th>
+                            <th>Subtotal</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Aquí se agregarán los productos dinámicamente -->
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="3" class="text-end">Total:</th>
+                            <th id="totalVenta">$0.00</th>
+                            <th></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary" id="btnGuardarVenta">Guardar Venta</button>
+            <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            let productos = [];
+            let total = 0;
+
+            // Mostrar stock disponible al seleccionar un producto
+            $("#productoSelect").change(function() {
+                let option = $(this).find('option:selected');
+                let stock = option.data('stock');
+
+                if (stock) {
+                    $("#stockDisponible").text(`Stock disponible: ${stock}`);
+                    $("#cantidad").attr('max', stock);
+                } else {
+                    $("#stockDisponible").text('');
+                    $("#cantidad").removeAttr('max');
+                }
+            });
+
+            // Agregar producto a la tabla
+            $("#btnAgregarProducto").click(function() {
+                let productoSelect = $("#productoSelect");
+                let productoId = productoSelect.val();
+
+                if (!productoId) {
+                    alert("Por favor seleccione un producto");
+                    return;
+                }
+
+                let option = productoSelect.find('option:selected');
+                let cantidad = parseInt($("#cantidad").val());
+                let stock = option.data('stock');
+                let precio = parseFloat(option.data('precio'));
+                let nombre = option.data('nombre');
+
+                if (cantidad <= 0) {
+                    alert("La cantidad debe ser mayor a 0");
+                    return;
+                }
+
+                if (cantidad > stock) {
+                    alert(`Solo hay ${stock} unidades disponibles`);
+                    return;
+                }
+
+                // Verificar si el producto ya está en la tabla
+                let productoExistente = false;
+                productos.forEach(function(p) {
+                    if (p.id == productoId) {
+                        if (p.cantidad + cantidad > stock) {
+                            alert(`No hay suficiente stock. Solo puedes agregar ${stock - p.cantidad} más.`);
+                        } else {
+                            p.cantidad += cantidad;
+                            p.subtotal = p.cantidad * p.precio;
+                            productoExistente = true;
+                        }
+                    }
+                });
+
+                if (!productoExistente) {
+                    let subtotal = precio * cantidad;
+                    productos.push({
+                        id: productoId,
+                        nombre: nombre,
+                        precio: precio,
+                        cantidad: cantidad,
+                        subtotal: subtotal
+                    });
+                }
+
+                actualizarTablaProductos();
+                calcularTotal();
+            });
+
+            // Eliminar producto de la tabla
+            $(document).on('click', '.btn-eliminar', function() {
+                let productoId = $(this).data('id');
+                productos = productos.filter(p => p.id != productoId);
+                actualizarTablaProductos();
+                calcularTotal();
+            });
+
+            // Función para actualizar la tabla de productos
+            function actualizarTablaProductos() {
+                let tbody = $("#tablaProductos tbody");
+                tbody.empty();
+
+                productos.forEach(function(p) {
+                    tbody.append(`
+                        <tr>
+                            <td>${p.nombre}</td>
+                            <td>$${p.precio.toFixed(2)}</td>
+                            <td>${p.cantidad}</td>
+                            <td>$${p.subtotal.toFixed(2)}</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-danger btn-eliminar" data-id="${p.id}">
+                                    Eliminar
+                                </button>
+                            </td>
+                        </tr>
+                    `);
+                });
+            }
+
+            // Calcular el total de la venta
+            function calcularTotal() {
+                total = productos.reduce((sum, p) => sum + p.subtotal, 0);
+                $("#totalVenta").text(`$${total.toFixed(2)}`);
+                $("#Total").val(total);
+            }
+
+            // Enviar el formulario
+            $("#ventaForm").submit(function(e) {
+                if (productos.length === 0) {
+                    e.preventDefault();
+                    alert("Debe agregar al menos un producto a la venta");
+                    return false;
+                }
+
+                // Aquí podríamos agregar código para enviar también los detalles de productos
+                // Por ahora solo enviamos el formulario básico
+            });
+        });
+    </script>
+}

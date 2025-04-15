@@ -2,12 +2,48 @@
     ViewData["Title"] = "Menú Principal ";
 }
 
-<div class="d-flex flex-column align-items-start" role="group" aria-label="Menu">
-    <h3>Clientes</h3>
-    <a href="@Url.Action("AgregarCliente", "Home")" class="btn btn-primary mb-2">Agregar Cliente</a>
-    <a href="@Url.Action("ObtenerTodosClientes", "Home")" class="btn btn-primary mb-2">Lista de Clientes</a>
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3>Clientes</h3>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="@Url.Action("AgregarCliente", "Home")" class="btn btn-outline-primary">Agregar Cliente</a>
+                        <a href="@Url.Action("ObtenerTodosClientes", "Home")" class="btn btn-outline-primary">Lista de Clientes</a>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <h3 class="mt-3">Productos</h3>
-    <a href="@Url.Action("AgregarProducto", "Home")" class="btn btn-success mb-2">Agregar Producto</a>
-    <a href="@Url.Action("ObtenerTodosProductos", "Home")" class="btn btn-success mb-2">Lista de Productos</a>
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h3>Productos</h3>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="@Url.Action("AgregarProducto", "Home")" class="btn btn-outline-success">Agregar Producto</a>
+                        <a href="@Url.Action("ObtenerTodosProductos", "Home")" class="btn btn-outline-success">Lista de Productos</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h3>Ventas</h3>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="@Url.Action("CrearVenta", "Home")" class="btn btn-outline-info">Nueva Venta</a>
+                        <a href="@Url.Action("ListaVentas", "Home")" class="btn btn-outline-info">Lista de Ventas</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

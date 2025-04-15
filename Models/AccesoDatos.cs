@@ -462,6 +462,100 @@ namespace Proyecto_Gestion_Ventas.Models
         }
 
 
+        // Método para obtener una venta por ID
+        public Venta ObtenerVentaPorId(int id)
+        {
+            using (SqlConnection con = new SqlConnection(_conexion))
+            {
+                try
+                {
+                    string query = @"SELECT v.id_Venta, v.fecha, v.total, v.adicionado_por, v.id_cliente, 
+                           c.nombre AS nombre_cliente
+                           FROM Venta v
+                           INNER JOIN Cliente c ON v.id_cliente = c.id_cliente
+                           WHERE v.id_Venta = @id_venta";
+
+                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    {
+                        cmd.Parameters.AddWithValue("@id_venta", id);
+                        con.Open();
+
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                Venta venta = new Venta
+                                {
+                                    IdVenta = Convert.ToInt32(reader["id_Venta"]),
+                                    Fecha = Convert.ToDateTime(reader["fecha"]),
+                                    Total = Convert.ToDouble(reader["total"]),
+                                    AdicionadoPor = reader["adicionado_por"].ToString(),
+                                    IdCliente = Convert.ToInt32(reader["id_cliente"]),
+                                    NombreCliente = reader["nombre_cliente"].ToString()
+                                };
+
+                                return venta;
+                            }
+                        }
+
+                        return null; // Si no se encuentra la venta
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Error al obtener la venta: " + ex.Message);
+                }
+            }
+        }
+
+        // Método para obtener todas las ventas
+        public List<Venta> ObtenerTodasVentas()
+        {
+            List<Venta> listaVentas = new List<Venta>();
+
+            using (SqlConnection con = new SqlConnection(_conexion))
+            {
+                try
+                {
+                    string query = @"SELECT v.id_Venta, v.fecha, v.total, v.adicionado_por, v.id_cliente, 
+                           c.nombre AS nombre_cliente
+                           FROM Venta v
+                           INNER JOIN Cliente c ON v.id_cliente = c.id_cliente
+                           ORDER BY v.fecha DESC";
+
+                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    {
+                        con.Open();
+
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                Venta venta = new Venta
+                                {
+                                    IdVenta = Convert.ToInt32(reader["id_Venta"]),
+                                    Fecha = Convert.ToDateTime(reader["fecha"]),
+                                    Total = Convert.ToDouble(reader["total"]),
+                                    AdicionadoPor = reader["adicionado_por"].ToString(),
+                                    IdCliente = Convert.ToInt32(reader["id_cliente"]),
+                                    NombreCliente = reader["nombre_cliente"].ToString()
+                                };
+
+                                listaVentas.Add(venta);
+                            }
+                        }
+                    }
+
+                    return listaVentas;
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Error al obtener las ventas: " + ex.Message);
+                }
+            }
+        }
+
+
 
 
 

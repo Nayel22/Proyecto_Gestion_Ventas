@@ -1,0 +1,69 @@
+﻿@model List<Proyecto_Gestion_Ventas.Models.Venta>
+
+@{
+    ViewData["Title"] = "Lista de Ventas";
+}
+
+<div class="container">
+    <h1>Lista de Ventas</h1>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger">
+            @ViewBag.Error
+        </div>
+    }
+
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Mensaje"]
+        </div>
+    }
+
+    <div class="mb-3">
+        <a asp-action="CrearVenta" class="btn btn-primary">Nueva Venta</a>
+        <a asp-action="Index" class="btn btn-secondary">Volver al Inicio</a>
+    </div>
+
+    @if (Model.Count > 0)
+    {
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Cliente</th>
+                        <th>Fecha</th>
+                        <th>Total</th>
+                        <th>Registrado por</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var venta in Model)
+                    {
+                        <tr>
+                            <td>@venta.IdVenta</td>
+                            <td>@venta.NombreCliente</td>
+                            <td>@venta.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@venta.Total.ToString("C")</td>
+                            <td>@venta.AdicionadoPor</td>
+                            <td>
+                                <a asp-action="DetalleVenta" asp-route-id="@venta.IdVenta" class="btn btn-sm btn-info">
+                                    Ver Detalle
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            No hay ventas registradas en el sistema.
+        </div>
+    }
+</div>

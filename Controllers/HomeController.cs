@@ -279,9 +279,96 @@ namespace Proyecto_Gestion_Ventas.Controllers
 
             // Redirigir a la lista de productos
             return RedirectToAction("ObtenerTodosProductos");
+
         }
 
+        ///////////////Procedimientos almacenados de Venta/////////////////////////////////////////
 
+        // GET: /Home/CrearVenta
+        public IActionResult CrearVenta()
+        {
+            // Cargar la lista de clientes para el dropdown
+            try
+            {
+                ViewBag.Clientes = _accesoDatos.ObtenerTodosClientes();
+                ViewBag.Productos = _accesoDatos.ObtenerTodosProductos();
+                return View(new Venta());
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = ex.Message;
+                return View("Error");
+            }
+        }
+
+        // POST: /Home/CrearVenta
+        [HttpPost]
+        public IActionResult CrearVenta(Venta venta)
+        {
+            try
+            {
+                // Asignar el usuario que está creando la venta
+                venta.AdicionadoPor = User.Identity?.Name ?? "Sistema";
+
+                // Insertar la venta en la base de datos
+                var ventaInsertada = _accesoDatos.InsertarVenta(venta);
+
+                if (ventaInsertada != null)
+                {
+                    TempData["Mensaje"] = "Venta registrada correctamente.";
+                    // Podríamos redirigir a una página de detalles de la venta o a otra acción
+                    return RedirectToAction("DetalleVenta", new { id = ventaInsertada.IdVenta });
+                }
+                else
+                {
+                    ViewBag.Error = "No se pudo registrar la venta.";
+                    ViewBag.Clientes = _accesoDatos.ObtenerTodosClientes();
+                    ViewBag.Productos = _accesoDatos.ObtenerTodosProductos();
+                    return View(venta);
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = ex.Message;
+                ViewBag.Clientes = _accesoDatos.ObtenerTodosClientes();
+                ViewBag.Productos = _accesoDatos.ObtenerTodosProductos();
+                return View(venta);
+            }
+        }
+
+        // GET: /Home/DetalleVenta/5
+        public IActionResult DetalleVenta(int id)
+        {
+            try
+            {
+                var venta = _accesoDatos.ObtenerVentaPorId(id);
+                if (venta == null)
+                {
+                    return NotFound();
+                }
+                return View(venta);
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = ex.Message;
+                return View("Error");
+            }
+        }
+
+        // GET: /Home/ListaVentas
+        public IActionResult ListaVentas()
+        {
+            try
+            {
+                var ventas = _accesoDatos.ObtenerTodasVentas();
+                return View(ventas);
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = ex.Message;
+                return View("Error");
+            }
+        }
 
 
 
