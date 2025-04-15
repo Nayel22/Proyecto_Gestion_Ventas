@@ -412,6 +412,56 @@ namespace Proyecto_Gestion_Ventas.Models
         }
 
 
+        ///////////////////Procedimientos Almacenados de Venta////////////////////////////////////////
+
+        // Método para insertar una venta
+        public Venta InsertarVenta(Venta nuevaVenta)
+        {
+            using (SqlConnection con = new SqlConnection(_conexion))
+            {
+                try
+                {
+                    string query = "Exec sp_InsertarVenta @total, @adicionado_por, @id_cliente";
+
+                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    {
+                        // Asignar los valores de los parámetros
+                        cmd.Parameters.AddWithValue("@total", nuevaVenta.Total);
+                        cmd.Parameters.AddWithValue("@adicionado_por", nuevaVenta.AdicionadoPor);
+                        cmd.Parameters.AddWithValue("@id_cliente", nuevaVenta.IdCliente);
+
+                        // Abrir la conexión
+                        con.Open();
+
+                        // Ejecutar el procedimiento y obtener los resultados
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                Venta ventaInsertada = new Venta
+                                {
+                                    IdVenta = Convert.ToInt32(reader["id_Venta"]),
+                                    Fecha = Convert.ToDateTime(reader["fecha"]),
+                                    Total = Convert.ToDouble(reader["total"]),
+                                    AdicionadoPor = reader["adicionado_por"].ToString(),
+                                    IdCliente = Convert.ToInt32(reader["id_cliente"]),
+                                    NombreCliente = reader["nombre_cliente"].ToString()
+                                };
+
+                                return ventaInsertada;
+                            }
+                            return null;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Error al registrar la venta: " + ex.Message);
+                }
+            }
+        }
+
+
 
 
 

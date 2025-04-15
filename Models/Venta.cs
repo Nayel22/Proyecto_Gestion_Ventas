@@ -2,10 +2,12 @@
 {
     public class Venta
     {
-        private int IdVenta { get; set; }
-        private DateTime Fecha { get; set; }
-        private double Total { get; set; }
-        private string AdicionadoPor { get; set; }
-        private int IdCliente { get; set; }
+        public int IdVenta { get; set; }
+        public DateTime Fecha { get; set; } = DateTime.Now;
+        public double Total { get; set; }
+        public string AdicionadoPor { get; set; }
+        public int IdCliente { get; set; }
+        // Propiedad adicional para mostrar el nombre del cliente
+        public string NombreCliente { get; set; }
     }
 }
