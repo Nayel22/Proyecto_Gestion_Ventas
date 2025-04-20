@@ -2,10 +2,12 @@
 {
     public class DetalleVenta
     {
-        private int IdDetalleVenta { get; set; }
-        private int IdVenta { get; set; }
-        private int IdProducto { get; set; }
-        private int Cantidad { get; set; }
-        private double SubTotal { get; set; }
+        public int IdDetalleVenta { get; set; }
+        public int IdVenta { get; set; }
+        public int IdProducto { get; set; }
+        public int Cantidad { get; set; }
+        public double SubTotal { get; set; }
+
+      
     }
 }

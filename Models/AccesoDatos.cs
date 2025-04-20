@@ -555,9 +555,88 @@ namespace Proyecto_Gestion_Ventas.Models
             }
         }
 
+        // Detalles de la venta
+
+        public DetalleVenta InsertarDetalleVenta(DetalleVenta nuevoDetalle)
+        {
+            using (SqlConnection con = new SqlConnection(_conexion))
+            {
+                try
+                {
+                    string query = "Exec sp_InsertarDetalleVenta @id_venta, @id_producto, @cantidad, @subTotal";
+                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    {
+                        // Asignar los valores de los parámetros
+                        cmd.Parameters.AddWithValue("@id_venta", nuevoDetalle.IdVenta);
+                        cmd.Parameters.AddWithValue("@id_producto", nuevoDetalle.IdProducto);
+                        cmd.Parameters.AddWithValue("@cantidad", nuevoDetalle.Cantidad);
+                        cmd.Parameters.AddWithValue("@precio", nuevoDetalle.SubTotal);
+                        // Abrir la conexión
+                        con.Open();
+                        // Ejecutar el procedimiento y obtener los resultados
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                DetalleVenta detalleInsertado = new DetalleVenta
+                                {
+                                    IdDetalleVenta = Convert.ToInt32(reader["id_detalle"]),
+                                    IdVenta = Convert.ToInt32(reader["id_venta"]),
+                                    IdProducto = Convert.ToInt32(reader["id_producto"]),
+                                    Cantidad = Convert.ToInt32(reader["cantidad"]),
+                                    SubTotal = Convert.ToDouble(reader["subTotal"])
+                                };
+                                return detalleInsertado;
+                            }
+                            return null;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Error al registrar el detalle de la venta: " + ex.Message);
+                }
+            }
 
 
 
+
+        }
+        public List<DetalleVenta> ObtenerDetalleVentaPorId(int idVenta)
+        {
+            List<DetalleVenta> lista = new List<DetalleVenta>();
+
+            using (SqlConnection conn = new SqlConnection(_conexion)) 
+            {
+                using (SqlCommand cmd = new SqlCommand("sp_ObtenerDetalleVentaPorId", conn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@IdVenta", idVenta);
+
+                    conn.Open();
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        // Si el SP devuelve solo los detalles del producto:
+                        while (reader.Read())
+                        {
+                            DetalleVenta detalle = new DetalleVenta
+                            {
+                                IdDetalleVenta = Convert.ToInt32(reader["IdVentaDetalle"]),
+                                IdVenta = Convert.ToInt32(reader["IdVenta"]),
+                                IdProducto = Convert.ToInt32(reader["IdProducto"]),
+                                Cantidad = Convert.ToInt32(reader["Cantidad"]),
+                                SubTotal = Convert.ToDouble(reader["Subtotal"])
+                            };
+
+                            lista.Add(detalle);
+                        }
+                    }
+                }
+            }
+
+            return lista;
+        }
 
 
     }
