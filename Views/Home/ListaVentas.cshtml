@@ -21,6 +21,13 @@
         </div>
     }
 
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
     <div class="mb-3">
         <a asp-action="CrearVenta" class="btn btn-primary">Nueva Venta</a>
         <a asp-action="Index" class="btn btn-secondary">Volver al Inicio</a>
@@ -57,6 +64,31 @@
                                     <a asp-action="DescargarFacturaPDF" asp-route-id="@venta.IdVenta" class="btn btn-sm btn-outline-primary">
                                         <i class="bi bi-file-pdf"></i> Factura
                                     </a>
+                                    <a href="#" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#eliminarModal@(venta.IdVenta)">
+                                        <i class="bi bi-trash"></i> Eliminar
+                                    </a>
+                                </div>
+
+                                <!-- Modal de confirmación para eliminar -->
+                                <div class="modal fade" id="eliminarModal@(venta.IdVenta)" tabindex="-1" aria-labelledby="eliminarModalLabel@(venta.IdVenta)" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="eliminarModalLabel@(venta.IdVenta)">Confirmar eliminación</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                ¿Está seguro que desea eliminar la venta #@venta.IdVenta a @venta.NombreCliente por @venta.Total.ToString("C")?
+                                                <p class="text-danger mt-2">
+                                                    <strong>Advertencia:</strong> Esta acción no se puede deshacer y eliminará todos los detalles asociados a esta venta.
+                                                </p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                <a asp-action="EliminarVenta" asp-route-id="@venta.IdVenta" class="btn btn-danger">Eliminar</a>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </td>
                         </tr>

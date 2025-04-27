@@ -418,6 +418,35 @@ namespace Proyecto_Gestion_Ventas.Controllers
             }
         }
 
+        // Método para eliminar una venta
+        public IActionResult EliminarVenta(int id)
+        {
+            try
+            {
+                // Intentar eliminar la venta
+                bool resultado = _accesoDatos.EliminarVenta(id);
+
+                if (resultado)
+                {
+                    TempData["Mensaje"] = "Venta eliminada correctamente.";
+                }
+                else
+                {
+                    TempData["Error"] = "No fue posible eliminar la venta.";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Error al eliminar la venta: " + ex.Message;
+            }
+
+            // Redirigir a la lista de ventas
+            return RedirectToAction("ListaVentas");
+        }
+
+
+
+
         ///////////////////Procedimiento almacenado de de Factura///////////////////////////////
 
 

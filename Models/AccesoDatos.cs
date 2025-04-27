@@ -555,6 +555,38 @@ namespace Proyecto_Gestion_Ventas.Models
             }
         }
 
+        // Método para eliminar una venta
+        public bool EliminarVenta(int idVenta)
+        {
+            using (SqlConnection con = new SqlConnection(_conexion))
+            {
+                try
+                {
+                    string query = "Exec sp_EliminarVenta @id_Venta";
+
+                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    {
+                        // Asignar el parámetro
+                        cmd.Parameters.AddWithValue("@id_Venta", idVenta);
+
+                        // Abrir la conexión
+                        con.Open();
+
+                        // Ejecutar el procedimiento almacenado
+                        cmd.ExecuteNonQuery();
+
+                        return true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Error al eliminar la venta: " + ex.Message);
+                }
+            }
+        }
+
+
+
 
         ///////////////////Procedimiento almacenado de de Factura///////////////////////////////
 
