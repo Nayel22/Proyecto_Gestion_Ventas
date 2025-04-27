@@ -556,6 +556,197 @@ namespace Proyecto_Gestion_Ventas.Models
         }
 
 
+        ///////////////////Procedimiento almacenado de de Factura///////////////////////////////
+
+        // Método para insertar una factura
+        public int InsertarFactura(Factura nuevaFactura)
+        {
+            using (SqlConnection con = new SqlConnection(_conexion))
+            {
+                try
+                {
+                    string query = "Exec sp_InsertarFactura @id_Venta, @id_producto, @cantidad, @subTotal";
+
+                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    {
+                        // Asignar los valores de los parámetros
+                        cmd.Parameters.AddWithValue("@id_Venta", nuevaFactura.IdVenta);
+                        cmd.Parameters.AddWithValue("@id_producto", nuevaFactura.IdProducto);
+                        cmd.Parameters.AddWithValue("@cantidad", nuevaFactura.Cantidad);
+                        cmd.Parameters.AddWithValue("@subTotal", nuevaFactura.SubTotal);
+
+                        // Abrir la conexión
+                        con.Open();
+
+                        // Ejecutar el procedimiento almacenado
+                        cmd.ExecuteNonQuery();
+
+                        // Obtener el ID de la factura insertada (puede necesitar ajustes según cómo retorne el ID tu procedimiento)
+                        string queryId = "SELECT SCOPE_IDENTITY()";
+                        cmd.CommandText = queryId;
+                        int idFactura = Convert.ToInt32(cmd.ExecuteScalar());
+
+                        return idFactura;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Error al registrar la factura: " + ex.Message);
+                }
+            }
+        }
+
+        // Método para actualizar una factura
+        public bool ActualizarFactura(Factura factura)
+        {
+            using (SqlConnection con = new SqlConnection(_conexion))
+            {
+                try
+                {
+                    string query = "Exec sp_ActualizarFactura @id_factura, @id_Venta, @id_producto, @cantidad, @subTotal";
+
+                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    {
+                        // Asignar los valores de los parámetros
+                        cmd.Parameters.AddWithValue("@id_factura", factura.IdFactura);
+                        cmd.Parameters.AddWithValue("@id_Venta", factura.IdVenta);
+                        cmd.Parameters.AddWithValue("@id_producto", factura.IdProducto);
+                        cmd.Parameters.AddWithValue("@cantidad", factura.Cantidad);
+                        cmd.Parameters.AddWithValue("@subTotal", factura.SubTotal);
+
+                        // Abrir la conexión
+                        con.Open();
+
+                        // Ejecutar el procedimiento almacenado
+                        cmd.ExecuteNonQuery();
+
+                        return true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Error al actualizar la factura: " + ex.Message);
+                }
+            }
+        }
+
+        // Método para eliminar una factura
+        public bool EliminarFactura(int idFactura)
+        {
+            using (SqlConnection con = new SqlConnection(_conexion))
+            {
+                try
+                {
+                    string query = "Exec sp_EliminarFactura @id_factura";
+
+                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    {
+                        // Asignar el parámetro
+                        cmd.Parameters.AddWithValue("@id_factura", idFactura);
+
+                        // Abrir la conexión
+                        con.Open();
+
+                        // Ejecutar el procedimiento almacenado
+                        cmd.ExecuteNonQuery();
+
+                        return true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Error al eliminar la factura: " + ex.Message);
+                }
+            }
+        }
+
+        // Método para listar todas las facturas
+        public List<Factura> ListarFacturas()
+        {
+            List<Factura> listaFacturas = new List<Factura>();
+
+            using (SqlConnection con = new SqlConnection(_conexion))
+            {
+                try
+                {
+                    string query = "Exec sp_ListarFacturas";
+
+                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    {
+                        con.Open();
+
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                Factura factura = new Factura
+                                {
+                                    IdFactura = Convert.ToInt32(reader["id_factura"]),
+                                    FechaVenta = Convert.ToDateTime(reader["fecha_venta"]),
+                                    NombreCliente = reader["cliente"].ToString(),
+                                    NombreProducto = reader["producto"].ToString(),
+                                    Cantidad = Convert.ToInt32(reader["cantidad"]),
+                                    SubTotal = Convert.ToDouble(reader["subTotal"])
+                                };
+
+                                listaFacturas.Add(factura);
+                            }
+                        }
+                    }
+
+                    return listaFacturas;
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Error al obtener las facturas: " + ex.Message);
+                }
+            }
+        }
+
+        // Método para obtener una factura por ID
+        public Factura ObtenerFacturaPorId(int id)
+        {
+            using (SqlConnection con = new SqlConnection(_conexion))
+            {
+                try
+                {
+                    string query = "Exec sp_ObtenerFacturaPorId @id_factura";
+
+                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    {
+                        cmd.Parameters.AddWithValue("@id_factura", id);
+                        con.Open();
+
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                Factura factura = new Factura
+                                {
+                                    IdFactura = Convert.ToInt32(reader["id_factura"]),
+                                    FechaVenta = Convert.ToDateTime(reader["fecha_venta"]),
+                                    NombreCliente = reader["cliente"].ToString(),
+                                    NombreProducto = reader["producto"].ToString(),
+                                    Cantidad = Convert.ToInt32(reader["cantidad"]),
+                                    SubTotal = Convert.ToDouble(reader["subTotal"])
+                                };
+
+                                return factura;
+                            }
+                        }
+
+                        return null; // Si no se encuentra la factura
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Error al obtener la factura: " + ex.Message);
+                }
+            }
+        }
+
+
+
 
 
 
