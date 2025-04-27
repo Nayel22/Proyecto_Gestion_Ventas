@@ -50,9 +50,14 @@
                             <td>@venta.Total.ToString("C")</td>
                             <td>@venta.AdicionadoPor</td>
                             <td>
-                                <a asp-action="DetalleVenta" asp-route-id="@venta.IdVenta" class="btn btn-sm btn-info">
-                                    Ver Detalle
-                                </a>
+                                <div class="btn-group">
+                                    <a asp-action="DetalleVenta" asp-route-id="@venta.IdVenta" class="btn btn-sm btn-info">
+                                        Ver Detalle
+                                    </a>
+                                    <a asp-action="DescargarFacturaPDF" asp-route-id="@venta.IdVenta" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-file-pdf"></i> Factura
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     }

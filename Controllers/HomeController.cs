@@ -9,6 +9,7 @@ namespace Proyecto_Gestion_Ventas.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly AccesoDatos _accesoDatos;
 
+
         public HomeController(ILogger<HomeController> logger, AccesoDatos accesoDatos)
         {
             _logger = logger;
@@ -337,21 +338,42 @@ namespace Proyecto_Gestion_Ventas.Controllers
         }
 
         // GET: /Home/DetalleVenta/5
+
+        // Método para mostrar detalle de venta con factura
         public IActionResult DetalleVenta(int id)
         {
             try
             {
+                // Obtener la venta por ID
                 var venta = _accesoDatos.ObtenerVentaPorId(id);
+
                 if (venta == null)
                 {
-                    return NotFound();
+                    ViewBag.Error = "No se encontró la venta solicitada";
+                    return RedirectToAction("ListaVentas");
                 }
+
+                // Obtener los detalles de la factura
+                var detallesFactura = ObtenerDetallesFacturasPorVenta(id);
+
+                // Calcular los totales para la factura
+                double subtotal = detallesFactura.Sum(d => d.SubTotal);
+                double impuesto = Math.Round(subtotal * 0.16, 2); // 16% de IVA
+                double total = subtotal + impuesto;
+
+                // Pasar los datos a la vista
+                ViewBag.DetallesVenta = detallesFactura;
+                ViewBag.Subtotal = subtotal;
+                ViewBag.Impuesto = impuesto;
+                ViewBag.Total = total;
+                ViewBag.NumeroFactura = $"F-{venta.IdVenta:D6}";
+
                 return View(venta);
             }
             catch (Exception ex)
             {
-                ViewBag.Error = ex.Message;
-                return View("Error");
+                ViewBag.Error = "Error al cargar los detalles de la venta: " + ex.Message;
+                return RedirectToAction("ListaVentas");
             }
         }
 
@@ -367,6 +389,46 @@ namespace Proyecto_Gestion_Ventas.Controllers
             {
                 ViewBag.Error = ex.Message;
                 return View("Error");
+            }
+        }
+
+        ///////////////////Procedimiento almacenado de de Factura///////////////////////////////
+
+
+
+        // Método auxiliar para obtener los detalles de factura por ID de venta
+        private List<Factura> ObtenerDetallesFacturasPorVenta(int idVenta)
+        {
+            try
+            {
+                // Suponemos que podemos filtrar la lista de facturas por el ID de venta
+                var todasLasFacturas = _accesoDatos.ListarFacturas();
+                var detallesVenta = todasLasFacturas.Where(f => f.IdVenta == idVenta).ToList();
+
+                return detallesVenta;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al obtener los detalles de la factura: " + ex.Message);
+            }
+        }
+
+
+        // Método para generar PDF de factura (opcional)
+        public IActionResult DescargarFacturaPDF(int id)
+        {
+            try
+            {
+                // Aquí se implementaría la generación del PDF de la factura
+                // Este método es opcional y requeriría una biblioteca para generar PDFs
+
+                // Por ahora, simplemente redireccionamos al detalle
+                return RedirectToAction("DetalleVenta", new { id = id });
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Error al generar la factura: " + ex.Message;
+                return RedirectToAction("DetalleVenta", new { id = id });
             }
         }
 
