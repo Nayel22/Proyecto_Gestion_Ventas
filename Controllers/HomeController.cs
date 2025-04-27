@@ -340,33 +340,59 @@ namespace Proyecto_Gestion_Ventas.Controllers
         // GET: /Home/DetalleVenta/5
 
         // Método para mostrar detalle de venta con factura
+        // Acción para ver los detalles de una venta específica
         public IActionResult DetalleVenta(int id)
         {
             try
             {
                 // Obtener la venta por ID
                 var venta = _accesoDatos.ObtenerVentaPorId(id);
-
                 if (venta == null)
                 {
-                    ViewBag.Error = "No se encontró la venta solicitada";
-                    return RedirectToAction("ListaVentas");
+                    return NotFound();
                 }
 
-                // Obtener los detalles de la factura
-                var detallesFactura = ObtenerDetallesFacturasPorVenta(id);
+                // Obtener los detalles de la factura para esta venta
+                var facturas = _accesoDatos.ObtenerFacturasPorVentaId(id);
+                ViewBag.DetallesVenta = facturas;
 
-                // Calcular los totales para la factura
-                double subtotal = detallesFactura.Sum(d => d.SubTotal);
-                double impuesto = Math.Round(subtotal * 0.16, 2); // 16% de IVA
-                double total = subtotal + impuesto;
+                // Calcular subtotal, IVA y total
+                double subtotal = Math.Round(venta.Total / 1.16, 2); // Suponiendo IVA del 16%
+                double impuesto = Math.Round(venta.Total - subtotal, 2);
 
-                // Pasar los datos a la vista
-                ViewBag.DetallesVenta = detallesFactura;
                 ViewBag.Subtotal = subtotal;
+                ViewBag.PorcentajeIVA = 16; // Porcentaje de IVA
                 ViewBag.Impuesto = impuesto;
-                ViewBag.Total = total;
-                ViewBag.NumeroFactura = $"F-{venta.IdVenta:D6}";
+                ViewBag.Total = venta.Total;
+                ViewBag.NumeroFactura = string.Format("F-{0:D6}", venta.IdVenta);
+
+                // Obtener datos completos del cliente
+                var cliente = _accesoDatos.ObtenerClientePorId(venta.IdCliente);
+                if (cliente != null)
+                {
+                    // Usar datos del cliente para la cabecera de la factura
+                    ViewBag.EmpresaNombre = cliente.Nombre;
+                    ViewBag.EmpresaRUC = "ID Cliente: " + cliente.IdCliente;
+                    ViewBag.EmpresaDireccion = cliente.Direccion;
+                    ViewBag.EmpresaTelefono = cliente.Telefono;
+
+                    // También guardar los datos para la sección de cliente
+                    ViewBag.ClienteDireccion = cliente.Direccion;
+                    ViewBag.ClienteTelefono = cliente.Telefono;
+                    ViewBag.FechaRegistroCliente = cliente.FechaRegistro.ToString("dd/MM/yyyy");
+                }
+                else
+                {
+                    // Valores por defecto si no se encuentra el cliente
+                    ViewBag.EmpresaNombre = "Cliente no encontrado";
+                    ViewBag.EmpresaRUC = "N/A";
+                    ViewBag.EmpresaDireccion = "N/A";
+                    ViewBag.EmpresaTelefono = "N/A";
+                }
+
+                // Información de pago
+                ViewBag.FormaPago = "Efectivo"; // Esto podría venir de la BD si guardas esa información
+                ViewBag.NotasAdicionales = "Gracias por su compra.";
 
                 return View(venta);
             }

@@ -745,6 +745,58 @@ namespace Proyecto_Gestion_Ventas.Models
             }
         }
 
+        // Método para obtener facturas por ID de venta
+        public List<Factura> ObtenerFacturasPorVentaId(int idVenta)
+        {
+            List<Factura> listaFacturas = new List<Factura>();
+
+            using (SqlConnection con = new SqlConnection(_conexion))
+            {
+                try
+                {
+                    string query = @"SELECT f.id_factura, f.id_Venta, f.id_producto, f.cantidad, f.subTotal,
+                              p.nombre AS producto, v.fecha AS fecha_venta, c.nombre AS cliente
+                           FROM Factura f
+                           INNER JOIN Producto p ON f.id_producto = p.id_producto
+                           INNER JOIN Venta v ON f.id_Venta = v.id_Venta
+                           INNER JOIN Cliente c ON v.id_cliente = c.id_cliente
+                           WHERE f.id_Venta = @id_Venta
+                           ORDER BY f.id_factura";
+
+                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    {
+                        cmd.Parameters.AddWithValue("@id_Venta", idVenta);
+                        con.Open();
+
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                Factura factura = new Factura
+                                {
+                                    IdFactura = Convert.ToInt32(reader["id_factura"]),
+                                    IdVenta = Convert.ToInt32(reader["id_Venta"]),
+                                    IdProducto = Convert.ToInt32(reader["id_producto"]),
+                                    Cantidad = Convert.ToInt32(reader["cantidad"]),
+                                    SubTotal = Convert.ToDouble(reader["subTotal"]),
+                                    NombreProducto = reader["producto"].ToString(),
+                                    FechaVenta = Convert.ToDateTime(reader["fecha_venta"]),
+                                    NombreCliente = reader["cliente"].ToString()
+                                };
+
+                                listaFacturas.Add(factura);
+                            }
+                        }
+                    }
+
+                    return listaFacturas;
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Error al obtener las facturas de la venta: " + ex.Message);
+                }
+            }
+        }
 
 
 

@@ -94,23 +94,28 @@
             <h5><i class="bi bi-receipt"></i> FACTURA</h5>
         </div>
         <div class="card-body">
+
+            <!-- Sección de encabezado de la factura (modificada) -->
             <div class="row mb-4">
                 <div class="col-md-6">
                     <h6 class="mb-2">Factura N°: @ViewBag.NumeroFactura</h6>
                     <p class="mb-1">Fecha: @Model.Fecha.ToString("dd/MM/yyyy HH:mm")</p>
                 </div>
                 <div class="col-md-6 text-end">
-                    <h6 class="mb-2">EMPRESA S.A.</h6>
-                    <p class="mb-1">RUC: 20123456789</p>
-                    <p class="mb-1">Dirección: Av. Principal 123</p>
-                    <p class="mb-1">Teléfono: 123-456-789</p>
-                </div>
-            </div>
-
-            <div class="row mb-4">
-                <div class="col-md-6">
-                    <h6 class="mb-2">CLIENTE:</h6>
+                    <h6 class="mb-2">DATOS DEL CLIENTE:</h6>
                     <p class="mb-1"><strong>@Model.NombreCliente</strong></p>
+                    @if (ViewBag.ClienteDireccion != null)
+                    {
+                        <p class="mb-1">Dirección: @ViewBag.ClienteDireccion</p>
+                    }
+                    @if (ViewBag.ClienteTelefono != null)
+                    {
+                        <p class="mb-1">Teléfono: @ViewBag.ClienteTelefono</p>
+                    }
+                    @if (ViewBag.FechaRegistroCliente != null)
+                    {
+                        <p class="mb-1">Cliente desde: @ViewBag.FechaRegistroCliente</p>
+                    }
                 </div>
             </div>
 
@@ -129,10 +134,11 @@
                         {
                             foreach (var detalle in ViewBag.DetallesVenta)
                             {
+                                decimal precioUnitario = (decimal)(detalle.SubTotal / detalle.Cantidad);
                                 <tr>
                                     <td>@detalle.NombreProducto</td>
                                     <td class="text-center">@detalle.Cantidad</td>
-                                    <td class="text-end">@((detalle.SubTotal / detalle.Cantidad).ToString("C"))</td>
+                                    <td class="text-end">@precioUnitario.ToString("C")</td>
                                     <td class="text-end">@detalle.SubTotal.ToString("C")</td>
                                 </tr>
                             }
@@ -144,7 +150,7 @@
                             <td class="text-end">@ViewBag.Subtotal.ToString("C")</td>
                         </tr>
                         <tr>
-                            <td colspan="3" class="text-end"><strong>IVA (16%):</strong></td>
+                            <td colspan="3" class="text-end"><strong>IVA (@ViewBag.PorcentajeIVA%):</strong></td>
                             <td class="text-end">@ViewBag.Impuesto.ToString("C")</td>
                         </tr>
                         <tr class="table-primary">
@@ -155,17 +161,31 @@
                 </table>
             </div>
 
+            <!-- Sección de condiciones de pago (modificada) -->
             <div class="row mt-4">
                 <div class="col-md-8">
                     <h6>CONDICIONES Y FORMAS DE PAGO</h6>
-                    <p>El pago se realizó al contado.</p>
+                    @if (ViewBag.FormaPago != null)
+                    {
+                        <p>Forma de pago: <strong>@ViewBag.FormaPago</strong></p>
+                    }
+                    else
+                    {
+                        <p>El pago se realizó al contado.</p>
+                    }
+                    @if (ViewBag.NotasAdicionales != null)
+                    {
+                        <p>@ViewBag.NotasAdicionales</p>
+                    }
+                    <p>Fecha de compra: @Model.Fecha.ToString("dd/MM/yyyy")</p>
                 </div>
                 <div class="col-md-4">
                     <div class="border-top pt-2 mt-2">
-                        <p class="text-center mb-0">FIRMA AUTORIZADA</p>
+                        <p class="text-center mb-0">FIRMA DEL CLIENTE</p>
                     </div>
                 </div>
             </div>
+
         </div>
         <div class="card-footer text-muted">
             <small>Esta factura es válida como comprobante fiscal. Conserve este documento.</small>
