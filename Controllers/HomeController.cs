@@ -8,6 +8,9 @@ using iText.Layout.Element;
 using iText.Layout.Properties;
 using iText.IO.Font.Constants;
 using iText.Kernel.Font;
+using iText.Kernel.Colors;
+using iText.Kernel.Pdf.Canvas.Draw;
+using iText.Layout.Borders;
 
 namespace Proyecto_Gestion_Ventas.Controllers
 {
@@ -482,86 +485,68 @@ namespace Proyecto_Gestion_Ventas.Controllers
 
         // Método para generar PDF de factura (opcional)
 
-        public IActionResult DescargarFacturaPDF(int id)
+public IActionResult DescargarFacturaPDF(int id)
+    {
+        _logger.LogInformation($"Iniciando descarga de factura para venta ID: {id}");
+
+        var venta = _accesoDatos.ObtenerVentaPorId(id);
+        if (venta == null)
         {
-            try
-            {
-                var venta = _accesoDatos.ObtenerVentaPorId(id);
-                if (venta == null)
-                    return NotFound();
-
-                var detallesFactura = _accesoDatos.ObtenerFacturasPorVentaId(id);
-
-                using (var ms = new MemoryStream())
-                {
-                    var writer = new PdfWriter(ms);
-                    var pdf = new PdfDocument(writer);
-                    var document = new Document(pdf);
-
-                    var bold = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
-
-                    document.Add(new Paragraph("Factura de Venta").SetFont(bold).SetFontSize(20).SetTextAlignment(TextAlignment.CENTER));
-                    document.Add(new Paragraph("\n"));
-
-                    var cliente = _accesoDatos.ObtenerClientePorId(venta.IdCliente);
-                    if (cliente != null)
-                    {
-                        document.Add(new Paragraph($"Cliente: {cliente.Nombre}"));
-                        document.Add(new Paragraph($"Dirección: {cliente.Direccion}"));
-                        document.Add(new Paragraph($"Teléfono: {cliente.Telefono}"));
-                        document.Add(new Paragraph($"Fecha Registro: {cliente.FechaRegistro:dd/MM/yyyy}"));
-                    }
-
-                    document.Add(new Paragraph("\n"));
-
-                    Table table = new Table(4).UseAllAvailableWidth();
-                    table.AddHeaderCell("Producto");
-                    table.AddHeaderCell("Cantidad");
-                    table.AddHeaderCell("Precio Unitario");
-                    table.AddHeaderCell("Subtotal");
-
-                    foreach (var detalle in detallesFactura)
-                    {
-                        var producto = _accesoDatos.ObtenerProductoPorId(detalle.IdProducto);
-
-                        // 👇 Aquí calculamos el precio unitario basado en SubTotal y Cantidad
-                        double precioUnitario = detalle.Cantidad > 0 ? detalle.SubTotal / detalle.Cantidad : 0;
-
-                        table.AddCell(producto?.Nombre ?? "Producto no encontrado");
-                        table.AddCell(detalle.Cantidad.ToString());
-                        table.AddCell($"${precioUnitario:F2}");
-                        table.AddCell($"${detalle.SubTotal:F2}");
-                    }
-
-                    document.Add(table);
-
-                    double subtotal = Math.Round(venta.Total / 1.16, 2);
-                    double impuesto = Math.Round(venta.Total - subtotal, 2);
-
-                    document.Add(new Paragraph($"\nSubtotal: ${subtotal:F2}"));
-                    document.Add(new Paragraph($"IVA (16%): ${impuesto:F2}"));
-                    document.Add(new Paragraph($"Total: ${venta.Total:F2}"));
-
-                    document.Close();
-
-                    var fileBytes = ms.ToArray();
-                    return File(fileBytes, "application/pdf", $"Factura_{venta.IdVenta:D6}.pdf");
-                }
-            }
-            catch (Exception ex)
-            {
-                ViewBag.Error = "Error al generar la factura: " + ex.Message;
-                return RedirectToAction("DetalleVenta", new { id });
-            }
+            _logger.LogWarning($"Venta no encontrada: {id}");
+            return NotFound("La venta especificada no existe");
         }
 
+        var detallesFactura = _accesoDatos.ObtenerFacturasPorVentaId(id) ?? new List<Factura>();
+
+        try
+        {
+            using (var ms = new MemoryStream())
+            {
+                var writer = new PdfWriter(ms);
+                var pdf = new PdfDocument(writer);
+                var document = new Document(pdf);
+
+                // Encabezado de la factura
+                var titulo = new Paragraph($"Factura de Venta #{venta.IdVenta}")
+                    .SetTextAlignment(TextAlignment.CENTER)
+                    .SetFontSize(18); // Solo tamaño, sin bold
+
+                document.Add(titulo);
+                document.Add(new Paragraph($"Cliente: {venta.NombreCliente ?? "N/A"}"));
+                document.Add(new Paragraph($"Fecha: {venta.Fecha.ToString("dd/MM/yyyy HH:mm")}"));
+                document.Add(new Paragraph($"Total: {venta.Total:C}"));
+
+                document.Add(new Paragraph("\nDetalles de Productos:"));
+
+                foreach (var detalle in detallesFactura)
+                {
+                    var idProducto = detalle?.IdProducto != null ? detalle.IdProducto.ToString() : "N/A";
+                    var cantidad = detalle?.Cantidad ?? 0;
+                    var subtotal = detalle?.SubTotal != null ? Convert.ToDecimal(detalle.SubTotal) : 0m;
+
+                    document.Add(new Paragraph($"- Producto: {idProducto}, Cantidad: {cantidad}, Subtotal: {subtotal:C}"));
+                }
+
+                document.Close();
+                pdf.Close();
+                writer.Close();
+
+                var fileBytes = ms.ToArray();
+                return File(fileBytes, "application/pdf", $"Factura_{venta.IdVenta}.pdf");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generando PDF");
+            return Content($"Error al generar el PDF: {ex.Message}");
+        }
+    }
 
 
 
 
 
-
-        public IActionResult Privacy()
+    public IActionResult Privacy()
         {
             return View();
         }
