@@ -345,53 +345,54 @@ namespace Proyecto_Gestion_Ventas.Controllers
         {
             try
             {
-                // Obtener la venta por ID
                 var venta = _accesoDatos.ObtenerVentaPorId(id);
                 if (venta == null)
                 {
                     return NotFound();
                 }
 
-                // Obtener los detalles de la factura para esta venta
                 var facturas = _accesoDatos.ObtenerFacturasPorVentaId(id);
+
+                if (facturas != null && facturas.Count > 0)
+                {
+                    foreach (var factura in facturas)
+                    {
+                        var producto = _accesoDatos.ObtenerProductoPorId(factura.IdProducto);
+                        factura.NombreProducto = producto != null ? producto.Nombre : "Producto no encontrado";
+                    }
+                }
+
                 ViewBag.DetallesVenta = facturas;
 
-                // Calcular subtotal, IVA y total
-                double subtotal = Math.Round(venta.Total / 1.16, 2); // Suponiendo IVA del 16%
+                double subtotal = Math.Round(venta.Total / 1.16, 2);
                 double impuesto = Math.Round(venta.Total - subtotal, 2);
 
                 ViewBag.Subtotal = subtotal;
-                ViewBag.PorcentajeIVA = 16; // Porcentaje de IVA
+                ViewBag.PorcentajeIVA = 16;
                 ViewBag.Impuesto = impuesto;
                 ViewBag.Total = venta.Total;
-                ViewBag.NumeroFactura = string.Format("F-{0:D6}", venta.IdVenta);
+                ViewBag.NumeroFactura = $"F-{venta.IdVenta:D6}";
 
-                // Obtener datos completos del cliente
                 var cliente = _accesoDatos.ObtenerClientePorId(venta.IdCliente);
                 if (cliente != null)
                 {
-                    // Usar datos del cliente para la cabecera de la factura
                     ViewBag.EmpresaNombre = cliente.Nombre;
-                    ViewBag.EmpresaRUC = "ID Cliente: " + cliente.IdCliente;
+                    ViewBag.EmpresaRUC = $"ID Cliente: {cliente.IdCliente}";
                     ViewBag.EmpresaDireccion = cliente.Direccion;
                     ViewBag.EmpresaTelefono = cliente.Telefono;
-
-                    // También guardar los datos para la sección de cliente
                     ViewBag.ClienteDireccion = cliente.Direccion;
                     ViewBag.ClienteTelefono = cliente.Telefono;
                     ViewBag.FechaRegistroCliente = cliente.FechaRegistro.ToString("dd/MM/yyyy");
                 }
                 else
                 {
-                    // Valores por defecto si no se encuentra el cliente
                     ViewBag.EmpresaNombre = "Cliente no encontrado";
                     ViewBag.EmpresaRUC = "N/A";
                     ViewBag.EmpresaDireccion = "N/A";
                     ViewBag.EmpresaTelefono = "N/A";
                 }
 
-                // Información de pago
-                ViewBag.FormaPago = "Efectivo"; // Esto podría venir de la BD si guardas esa información
+                ViewBag.FormaPago = "Efectivo";
                 ViewBag.NotasAdicionales = "Gracias por su compra.";
 
                 return View(venta);
@@ -402,6 +403,9 @@ namespace Proyecto_Gestion_Ventas.Controllers
                 return RedirectToAction("ListaVentas");
             }
         }
+
+
+
 
         // GET: /Home/ListaVentas
         public IActionResult ListaVentas()
