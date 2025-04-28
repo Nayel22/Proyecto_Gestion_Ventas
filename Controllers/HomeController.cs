@@ -2,6 +2,13 @@ using Microsoft.AspNetCore.Mvc;
 using Proyecto_Gestion_Ventas.Models;
 using System.Diagnostics;
 
+using System;
+using System.IO;
+using System.Collections.Generic;
+using System.Linq;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
+
 namespace Proyecto_Gestion_Ventas.Controllers
 {
     public class HomeController : Controller
@@ -490,6 +497,8 @@ namespace Proyecto_Gestion_Ventas.Controllers
                 return RedirectToAction("DetalleVenta", new { id = id });
             }
         }
+
+
 
 
 
