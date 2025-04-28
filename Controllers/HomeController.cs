@@ -1,13 +1,13 @@
-using Microsoft.AspNetCore.Mvc;
+Ôªøusing Microsoft.AspNetCore.Mvc;
 using Proyecto_Gestion_Ventas.Models;
 using System.Diagnostics;
 
-using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Linq;
-using iTextSharp.text;
-using iTextSharp.text.pdf;
+using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Element;
+using iText.Layout.Properties;
+using iText.IO.Font.Constants;
+using iText.Kernel.Font;
 
 namespace Proyecto_Gestion_Ventas.Controllers
 {
@@ -42,7 +42,7 @@ namespace Proyecto_Gestion_Ventas.Controllers
             {
                 try
                 {
-                    // Si el usuario no est· autenticado, asignar un valor predeterminado
+                    // Si el usuario no est√° autenticado, asignar un valor predeterminado
                     if (string.IsNullOrEmpty(cliente.AdicionadoPor))
                     {
                         cliente.AdicionadoPor = "Sistema";
@@ -50,7 +50,7 @@ namespace Proyecto_Gestion_Ventas.Controllers
 
                     // Usar la clase AccesoDatos para agregar el cliente
                     int idCliente = _accesoDatos.AgregarCliente(cliente);
-                    TempData["SuccessMessage"] = "Cliente registrado con Èxito. ID: " + idCliente;
+                    TempData["SuccessMessage"] = "Cliente registrado con √©xito. ID: " + idCliente;
                     return RedirectToAction("AgregarCliente");
                 }
                 catch (Exception ex)
@@ -82,7 +82,7 @@ namespace Proyecto_Gestion_Ventas.Controllers
             }
         }
 
-        // MÈtodo para mostrar el formulario de actualizaciÛn
+        // M√©todo para mostrar el formulario de actualizaci√≥n
         public IActionResult ActualizarCliente(int id)
         {
             try
@@ -102,7 +102,7 @@ namespace Proyecto_Gestion_Ventas.Controllers
             }
         }
 
-        // MÈtodo para procesar la actualizaciÛn
+        // M√©todo para procesar la actualizaci√≥n
         [HttpPost]
         public IActionResult GuardarCliente(Cliente cliente)
         {
@@ -122,12 +122,12 @@ namespace Proyecto_Gestion_Ventas.Controllers
             }
         }
 
-        // AcciÛn para eliminar un cliente
+        // Acci√≥n para eliminar un cliente
         public IActionResult EliminarCliente(int id)
         {
             try
             {
-                // Llamar al mÈtodo EliminarCliente de AccesoDatos
+                // Llamar al m√©todo EliminarCliente de AccesoDatos
                 bool resultado = _accesoDatos.EliminarCliente(id);
 
                 if (resultado)
@@ -168,13 +168,13 @@ namespace Proyecto_Gestion_Ventas.Controllers
                     // Asignar la fecha de registro
                     producto.FechaRegistro = DateTime.Now;
 
-                    // Llamar al mÈtodo de la capa de acceso a datos
+                    // Llamar al m√©todo de la capa de acceso a datos
                     int idProducto = _accesoDatos.AgregarProducto(producto);
 
-                    // Mostrar mensaje de Èxito
+                    // Mostrar mensaje de √©xito
                     TempData["SuccessMessage"] = "Producto agregado correctamente con ID: " + idProducto;
 
-                    // Redirect a la misma p·gina para limpiar el formulario
+                    // Redirect a la misma p√°gina para limpiar el formulario
                     return RedirectToAction(nameof(AgregarProducto));
                 }
                 return View(producto);
@@ -238,7 +238,7 @@ namespace Proyecto_Gestion_Ventas.Controllers
 
                 int resultado = _accesoDatos.ActualizarProducto(producto);
 
-                // ? AquÌ se imprime en consola
+                // ? Aqu√≠ se imprime en consola
 
                 Console.WriteLine("Resultado SP: " + resultado);
 
@@ -262,13 +262,13 @@ namespace Proyecto_Gestion_Ventas.Controllers
 
         }
 
-        // AcciÛn para eliminar un producto
+        // Acci√≥n para eliminar un producto
         [HttpPost]
         public IActionResult EliminarProducto(int id)
         {
             try
             {
-                // Llamar al mÈtodo EliminarProducto de AccesoDatos
+                // Llamar al m√©todo EliminarProducto de AccesoDatos
                 int resultado = _accesoDatos.EliminarProducto(id);
 
                 if (resultado == 1)
@@ -277,7 +277,7 @@ namespace Proyecto_Gestion_Ventas.Controllers
                 }
                 else
                 {
-                    TempData["Error"] = "No se encontrÛ el producto a eliminar";
+                    TempData["Error"] = "No se encontr√≥ el producto a eliminar";
                 }
             }
             catch (Exception ex)
@@ -315,7 +315,7 @@ namespace Proyecto_Gestion_Ventas.Controllers
         {
             try
             {
-                // Asignar el usuario que est· creando la venta
+                // Asignar el usuario que est√° creando la venta
                 venta.AdicionadoPor = User.Identity?.Name ?? "Sistema";
 
                 // Insertar la venta en la base de datos
@@ -324,7 +324,7 @@ namespace Proyecto_Gestion_Ventas.Controllers
                 if (ventaInsertada != null)
                 {
                     TempData["Mensaje"] = "Venta registrada correctamente.";
-                    // PodrÌamos redirigir a una p·gina de detalles de la venta o a otra acciÛn
+                    // Podr√≠amos redirigir a una p√°gina de detalles de la venta o a otra acci√≥n
                     return RedirectToAction("DetalleVenta", new { id = ventaInsertada.IdVenta });
                 }
                 else
@@ -346,8 +346,8 @@ namespace Proyecto_Gestion_Ventas.Controllers
 
         // GET: /Home/DetalleVenta/5
 
-        // MÈtodo para mostrar detalle de venta con factura
-        // AcciÛn para ver los detalles de una venta especÌfica
+        // M√©todo para mostrar detalle de venta con factura
+        // Acci√≥n para ver los detalles de una venta espec√≠fica
         public IActionResult DetalleVenta(int id)
         {
             try
@@ -429,7 +429,7 @@ namespace Proyecto_Gestion_Ventas.Controllers
             }
         }
 
-        // MÈtodo para eliminar una venta
+        // M√©todo para eliminar una venta
         public IActionResult EliminarVenta(int id)
         {
             try
@@ -462,7 +462,7 @@ namespace Proyecto_Gestion_Ventas.Controllers
 
 
 
-        // MÈtodo auxiliar para obtener los detalles de factura por ID de venta
+        // M√©todo auxiliar para obtener los detalles de factura por ID de venta
         private List<Factura> ObtenerDetallesFacturasPorVenta(int idVenta)
         {
             try
@@ -480,30 +480,80 @@ namespace Proyecto_Gestion_Ventas.Controllers
         }
 
 
-        // MÈtodo para generar PDF de factura (opcional)
+        // M√©todo para generar PDF de factura (opcional)
+
         public IActionResult DescargarFacturaPDF(int id)
         {
             try
             {
-                // AquÌ se implementarÌa la generaciÛn del PDF de la factura
-                // Este mÈtodo es opcional y requerirÌa una biblioteca para generar PDFs
+                var venta = _accesoDatos.ObtenerVentaPorId(id);
+                if (venta == null)
+                    return NotFound();
 
-                // Por ahora, simplemente redireccionamos al detalle
-                return RedirectToAction("DetalleVenta", new { id = id });
+                var detallesFactura = _accesoDatos.ObtenerFacturasPorVentaId(id);
+
+                using (var ms = new MemoryStream())
+                {
+                    var writer = new PdfWriter(ms);
+                    var pdf = new PdfDocument(writer);
+                    var document = new Document(pdf);
+
+                    var bold = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
+
+                    document.Add(new Paragraph("Factura de Venta").SetFont(bold).SetFontSize(20).SetTextAlignment(TextAlignment.CENTER));
+                    document.Add(new Paragraph("\n"));
+
+                    var cliente = _accesoDatos.ObtenerClientePorId(venta.IdCliente);
+                    if (cliente != null)
+                    {
+                        document.Add(new Paragraph($"Cliente: {cliente.Nombre}"));
+                        document.Add(new Paragraph($"Direcci√≥n: {cliente.Direccion}"));
+                        document.Add(new Paragraph($"Tel√©fono: {cliente.Telefono}"));
+                        document.Add(new Paragraph($"Fecha Registro: {cliente.FechaRegistro:dd/MM/yyyy}"));
+                    }
+
+                    document.Add(new Paragraph("\n"));
+
+                    Table table = new Table(4).UseAllAvailableWidth();
+                    table.AddHeaderCell("Producto");
+                    table.AddHeaderCell("Cantidad");
+                    table.AddHeaderCell("Precio Unitario");
+                    table.AddHeaderCell("Subtotal");
+
+                    foreach (var detalle in detallesFactura)
+                    {
+                        var producto = _accesoDatos.ObtenerProductoPorId(detalle.IdProducto);
+
+                        // üëá Aqu√≠ calculamos el precio unitario basado en SubTotal y Cantidad
+                        double precioUnitario = detalle.Cantidad > 0 ? detalle.SubTotal / detalle.Cantidad : 0;
+
+                        table.AddCell(producto?.Nombre ?? "Producto no encontrado");
+                        table.AddCell(detalle.Cantidad.ToString());
+                        table.AddCell($"${precioUnitario:F2}");
+                        table.AddCell($"${detalle.SubTotal:F2}");
+                    }
+
+                    document.Add(table);
+
+                    double subtotal = Math.Round(venta.Total / 1.16, 2);
+                    double impuesto = Math.Round(venta.Total - subtotal, 2);
+
+                    document.Add(new Paragraph($"\nSubtotal: ${subtotal:F2}"));
+                    document.Add(new Paragraph($"IVA (16%): ${impuesto:F2}"));
+                    document.Add(new Paragraph($"Total: ${venta.Total:F2}"));
+
+                    document.Close();
+
+                    var fileBytes = ms.ToArray();
+                    return File(fileBytes, "application/pdf", $"Factura_{venta.IdVenta:D6}.pdf");
+                }
             }
             catch (Exception ex)
             {
                 ViewBag.Error = "Error al generar la factura: " + ex.Message;
-                return RedirectToAction("DetalleVenta", new { id = id });
+                return RedirectToAction("DetalleVenta", new { id });
             }
         }
-
-
-
-
-
-
-
 
 
 
